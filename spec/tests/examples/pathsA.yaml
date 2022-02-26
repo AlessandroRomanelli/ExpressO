@@ -1,0 +1,24 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080/api
+    description: Generated server url
+paths:
+  /repository:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoriesPage
+      responses:
+        200:
+          description: OK
+  /repositories:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoriesPage
+      responses:
+        200:
+          description: OK

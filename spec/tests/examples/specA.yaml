@@ -1,0 +1,632 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080/api
+    description: Generated server url
+paths:
+  /repository:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoriesPage
+      parameters:
+        - name: pageable
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Pageable'
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageGitRepositoryDTO'
+    post:
+      tags:
+        - git-repository-controller
+      operationId: submitRepositoryRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepositoryUrlDTO'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepositorySmallDTO'
+  /repository/{id}/renaming:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRenamingFiles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+    post:
+      tags:
+        - git-repository-controller
+      operationId: submitRepositoryRenamingRequest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepositorySmallDTO'
+    patch:
+      tags:
+        - git-repository-controller
+      operationId: checkPredictionsFile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                predictionsFile:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          description: OK
+  /repository/{id}:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getSingleGitRepositoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepositoryDTO'
+    patch:
+      tags:
+        - git-repository-controller
+      operationId: updateRepository
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepositorySmallDTO'
+  /repository/{id}/status:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getGitRepositoryStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                enum:
+                  - IN_QUEUE
+                  - DOWNLOADING
+                  - MINING
+                  - ANALYZING
+                  - DONE
+                  - FAILED
+                  - PREDICTED
+  /repository/{id}/range:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getDataInTimeRange
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepositoryDataDTO'
+  /repository/{id}/labels:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoryLabels
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+  /repository/{id}/issues:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoryIssues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                uniqueItems: true
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueDTO'
+  /issue/{id}:
+    get:
+      tags:
+        - issue-controller
+      operationId: getSingleIssueById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IssueDTO'
+  /commit/{id}:
+    get:
+      tags:
+        - commit-controller
+      operationId: getSingleCommitById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CommitDTO'
+components:
+  schemas:
+    RepositoryUrlDTO:
+      type: object
+      properties:
+        url:
+          type: string
+    GitRepositorySmallDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        url:
+          type: string
+        lastUpdated:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - IN_QUEUE
+            - DOWNLOADING
+            - MINING
+            - ANALYZING
+            - DONE
+            - FAILED
+            - PREDICTED
+    Pageable:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: '#/components/schemas/Sort'
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+    Sort:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+        empty:
+          type: boolean
+    GitRepositoryDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        description:
+          type: string
+        forksCount:
+          type: integer
+          format: int32
+        commitsCount:
+          type: integer
+          format: int32
+        issuesCount:
+          type: integer
+          format: int32
+        labelsCount:
+          type: integer
+          format: int32
+        title:
+          type: string
+        url:
+          type: string
+        lastUpdated:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - IN_QUEUE
+            - DOWNLOADING
+            - MINING
+            - ANALYZING
+            - DONE
+            - FAILED
+            - PREDICTED
+    PageGitRepositoryDTO:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitRepositoryDTO'
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/Sort'
+        first:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        last:
+          type: boolean
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        empty:
+          type: boolean
+    CommitSmallDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+    GitRepositoryDataDTO:
+      type: object
+      properties:
+        commits:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommitSmallDTO'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/IssueSmallDTO'
+    IssueSmallDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+    Label:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        color:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+    IssueDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Label'
+        number:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+        title:
+          type: string
+        closedByCommits:
+          uniqueItems: true
+          type: array
+          items:
+            type: integer
+            format: int64
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        relatedCommits:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Commit'
+        name:
+          type: string
+    Commit:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        hash:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        createdAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+        body:
+          type: string
+        addedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        modifiedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        deletedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        closingIssues:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        averageCboDifference:
+          type: number
+          format: double
+        averageLocDifference:
+          type: number
+          format: double
+        averageWmcDifference:
+          type: number
+          format: double
+        averageLcomDifference:
+          type: number
+          format: double
+    CommitDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        hash:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        createdAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+        body:
+          type: string
+        addedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        modifiedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        deletedFiles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        closingIssues:
+          uniqueItems: true
+          type: array
+          items:
+            type: integer
+            format: int64
+        averageCboDifference:
+          type: number
+          format: double
+        averageLocDifference:
+          type: number
+          format: double
+        averageWmcDifference:
+          type: number
+          format: double
+        averageLcomDifference:
+          type: number
+          format: double
+    Issue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        body:
+          type: string
+        closedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        labels:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Label'
+        number:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+        title:
+          type: string
+        closedByCommits:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Commit'
