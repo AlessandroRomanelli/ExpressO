@@ -5,13 +5,13 @@ import { readSpecification } from './reader';
 import { CoverageReport, HTTPMethod, OAPISpecification } from './types';
 
 const compareEndpoints = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x['paths']));
+  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
 
-  const customEndpoints = customPaths.flatMap((path) =>
-    Object.keys(customSpec['paths'][path]).map((endpoint) => `${path}#${endpoint}`),
+  const customEndpoints = customPaths.flatMap((url) =>
+    Object.keys(customSpec.paths[url]).map((endpoint) => `${url}#${endpoint}`),
   );
-  const generatedEndpoints = generatedPaths.flatMap((path) =>
-    Object.keys(generatedSpec['paths'][path]).map((endpoint) => `${path}#${endpoint}`),
+  const generatedEndpoints = generatedPaths.flatMap((url) =>
+    Object.keys(generatedSpec.paths[url]).map((endpoint) => `${url}#${endpoint}`),
   );
 
   const missing = customEndpoints.filter((endpoint) => !generatedEndpoints.includes(endpoint));
@@ -24,20 +24,20 @@ const compareEndpoints = (customSpec: OAPISpecification, generatedSpec: OAPISpec
   };
 };
 const compareResponses = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x['paths']));
+  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
 
-  const customResponses = customPaths.flatMap((path) =>
-    (Object.keys(customSpec['paths'][path]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(customSpec['paths'][path][endpoint]['responses']).map(
-        (response) => `${path}#${endpoint}#${response}`,
+  const customResponses = customPaths.flatMap((url) =>
+    (Object.keys(customSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
+      Object.keys(customSpec.paths[url][endpoint].responses).map(
+        (response) => `${url}#${endpoint}#${response}`,
       ),
     ),
   );
 
-  const generatedResponses = generatedPaths.flatMap((path) =>
-    (Object.keys(generatedSpec['paths'][path]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(generatedSpec['paths'][path][endpoint]['responses']).map(
-        (response) => `${path}#${endpoint}#${response}`,
+  const generatedResponses = generatedPaths.flatMap((url) =>
+    (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
+      Object.keys(generatedSpec.paths[url][endpoint].responses).map(
+        (response) => `${url}#${endpoint}#${response}`,
       ),
     ),
   );
@@ -51,24 +51,25 @@ const compareResponses = (customSpec: OAPISpecification, generatedSpec: OAPISpec
     additional,
   };
 };
+
 const compareParameters = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x['paths']));
-  const customParameters = customPaths.flatMap((path) =>
-    (Object.keys(customSpec['paths'][path]) as HTTPMethod[]).flatMap((endpoint) =>
-      'parameters' in customSpec['paths'][path][endpoint]
-        ? Object.keys(customSpec['paths'][path][endpoint]['parameters']).map(
-            (parameter) => `${path}#${endpoint}#${customSpec['paths'][path][endpoint]['parameters'][parameter].name}`,
+  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
+  const customParameters = customPaths.flatMap((url) =>
+    (Object.keys(customSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
+      'parameters' in customSpec.paths[url][endpoint]
+        ? Object.keys(customSpec.paths[url][endpoint].parameters).map(
+            (parameter) => `${url}#${endpoint}#${customSpec.paths[url][endpoint].parameters[parameter].name}`,
           )
         : [],
     ),
   );
 
-  const generatedParameters = generatedPaths.flatMap((path) =>
-    (Object.keys(generatedSpec['paths'][path]) as HTTPMethod[]).flatMap((endpoint) =>
-      'parameters' in generatedSpec['paths'][path][endpoint]
-        ? Object.keys(generatedSpec['paths'][path][endpoint]['parameters']).map(
+  const generatedParameters = generatedPaths.flatMap((url) =>
+    (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
+      'parameters' in generatedSpec.paths[url][endpoint]
+        ? Object.keys(generatedSpec.paths[url][endpoint].parameters).map(
             (parameter) =>
-              `${path}#${endpoint}#${generatedSpec['paths'][path][endpoint]['parameters'][parameter].name}`,
+              `${url}#${endpoint}#${generatedSpec.paths[url][endpoint].parameters[parameter].name}`,
           )
         : [],
     ),

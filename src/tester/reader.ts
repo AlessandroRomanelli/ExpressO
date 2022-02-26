@@ -6,12 +6,12 @@ import { OAPISpecification } from './types';
 import logger from 'jet-logger';
 
 type FilePath = string;
-const readSpecificationYAML = (path: FilePath) => yaml.load(fs.readFileSync(path, 'utf8')) as OAPISpecification;
-const readSpecificationJSON = (path: FilePath) => JSON.parse(fs.readFileSync(path, 'utf8')) as OAPISpecification;
+const readSpecificationYAML = (filePath: FilePath) => yaml.load(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
+const readSpecificationJSON = (filePath: FilePath) => JSON.parse(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
 
-const isFilePath = (path: string): path is FilePath => {
+const isFilePath = (filePath: string): filePath is FilePath => {
   try {
-    return fs.lstatSync(path).isFile();
+    return fs.lstatSync(filePath).isFile();
   } catch (e) {
     logger.err(e);
   }
