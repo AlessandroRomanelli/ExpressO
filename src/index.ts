@@ -7,7 +7,7 @@ import { compareSpecifications } from './tester';
     JSON.stringify(
       await compareSpecifications('./spec/tests/examples/v2.yaml', './spec/tests/examples/v3.yaml'),
       null,
-      2
-    )
+      2,
+    ),
   );
-})()
+})();
