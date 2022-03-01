@@ -2,101 +2,59 @@ import logger from 'jet-logger';
 
 import path from 'path';
 import { readSpecification } from './reader';
-import { CoverageReport, HTTPMethod, OAPISpecification } from './types';
+import { CoverageReport, HTTPMethod } from './types';
+import _ from 'lodash'
+import { OpenAPIV3 } from "openapi-types";
 
-const compareEndpoints = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
-
-  const customEndpoints = customPaths.flatMap((url) =>
-    Object.keys(customSpec.paths[url]).map((endpoint) => `${url}#${endpoint}`),
-  );
-  const generatedEndpoints = generatedPaths.flatMap((url) =>
-    Object.keys(generatedSpec.paths[url]).map((endpoint) => `${url}#${endpoint}`),
-  );
-
-  const missing = customEndpoints.filter((endpoint) => !generatedEndpoints.includes(endpoint));
-  const additional = generatedEndpoints.filter((endpoint) => !customEndpoints.includes(endpoint));
+const compare = (customSpec: OpenAPIV3.Document, generatedSpec: OpenAPIV3.Document, extractorFn: (x: OpenAPIV3.Document) => string[]): CoverageReport => {
+  const [custom, generated] = [customSpec, generatedSpec].map(extractorFn)
+  const [missing, matched] = _.partition(custom, x => !generated.includes(x))
+  const additional = generated.filter(x => !custom.includes(x))
 
   return {
-    coverage: (customEndpoints.length - missing.length) / customEndpoints.length,
+    coverage: (custom.length - missing.length) / custom.length,
     additional,
     missing,
-  };
-};
-const compareResponses = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
+    matched
+  }
+}
 
-  const customResponses = customPaths.flatMap((url) =>
-    (Object.keys(customSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(customSpec.paths[url][endpoint].responses).map((response) => `${url}#${endpoint}#${response}`),
-    ),
+const getEndpoints = (x: OpenAPIV3.Document): string[] =>
+  Object.keys(x.paths).flatMap((pattern) =>
+    Object.keys(x.paths[pattern] || {}).map((method) => `${pattern}#${method}`),
   );
 
-  const generatedResponses = generatedPaths.flatMap((url) =>
-    (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(generatedSpec.paths[url][endpoint].responses).map((response) => `${url}#${endpoint}#${response}`),
-    ),
-  );
+const getResponses = (x: OpenAPIV3.Document): string[] => Object.keys(x.paths).flatMap((pattern) =>
+  (Object.keys(x.paths[pattern] || {}) as HTTPMethod[]).flatMap((method) => {
+    const patternObj = x.paths[pattern] || {}
+    if (!(method in patternObj)) return []
+    const methodObj = patternObj[method] as OpenAPIV3.OperationObject
+    return Object.keys(methodObj.responses).map((response) => `${pattern}#${method}#${response}`)
+  })
+);
 
-  const missing = customResponses.filter((response) => !generatedResponses.includes(response));
-  const additional = generatedResponses.filter((response) => !customResponses.includes(response));
+const getParameters = (x: OpenAPIV3.Document): string[] => Object.keys(x.paths).flatMap((url) =>
+  (Object.keys(x.paths[url] || {}) as HTTPMethod[]).flatMap((endpoint) => {
+    const patternObj = x.paths[url] || {}
+    if (!(endpoint in patternObj)) return []
+    const methodObj = patternObj[endpoint] as OpenAPIV3.OperationObject
+    if (!('parameters' in methodObj)) return []
+    const { parameters } = methodObj
+    return (parameters as OpenAPIV3.ParameterObject[])
+      .map((parameter) => `${url}#${endpoint}#${parameter.name}`)
+  })
+);
 
-  return {
-    coverage: (customResponses.length - missing.length) / customResponses.length,
-    missing,
-    additional,
-  };
-};
+export const compareSpecifications = async (custom: string, generated: string) => {
+  logger.info(`Comparing OpenAPI specifications: ${path.basename(custom)} with ${path.basename(generated)}`);
+  const [customSpec, generatedSpec] = await Promise.all([custom, generated].map(readSpecification));
 
-const compareParameters = (customSpec: OAPISpecification, generatedSpec: OAPISpecification): CoverageReport => {
-  const [customPaths, generatedPaths] = [customSpec, generatedSpec].map((x) => Object.keys(x.paths));
-  const customParameters = customPaths.flatMap((url) =>
-    (Object.keys(customSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      'parameters' in customSpec.paths[url][endpoint]
-        ? Object.keys(customSpec.paths[url][endpoint].parameters).map(
-            (parameter) => `${url}#${endpoint}#${customSpec.paths[url][endpoint].parameters[parameter].name}`,
-          )
-        : [],
-    ),
-  );
+  if (!('paths' in customSpec && 'paths' in generatedSpec)) {
+    throw new Error("The 'paths' property is missing from at least one of the two provided specification")
+  }
 
-  const generatedParameters = generatedPaths.flatMap((url) =>
-    (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      'parameters' in generatedSpec.paths[url][endpoint]
-        ? Object.keys(generatedSpec.paths[url][endpoint].parameters).map(
-            (parameter) => `${url}#${endpoint}#${generatedSpec.paths[url][endpoint].parameters[parameter].name}`,
-          )
-        : [],
-    ),
-  );
-
-  const missing = customParameters.filter((parameter) => !generatedParameters.includes(parameter));
-  const additional = generatedParameters.filter((parameter) => !customParameters.includes(parameter));
-
-  return {
-    coverage: (customParameters.length - missing.length) / customParameters.length,
-    missing,
-    additional,
-  };
-};
-
-export const compare = (custom: string, generated: string) => {
-  logger.info(`Comparing OpenAPI specification: ${path.basename(custom)} with ${path.basename(generated)}`);
-  const [customSpec, generatedSpec] = [custom, generated].map((x) => readSpecification(x));
-
-  // Check that OpenAPI specification has 'paths' field
-  [
-    [custom, customSpec],
-    [generated, generatedSpec],
-  ]
-    .filter(([_, spec]) => !('paths' in (spec as OAPISpecification)))
-    .forEach(([specPath]) => {
-      throw new Error(`The following specification did not have a 'paths' field: ${path.basename(specPath as string)}`);
-    });
-
-  const comparisons = [compareEndpoints, compareResponses, compareParameters];
-
-  const [endpoints, responses, parameters] = comparisons.map((fn) => fn(customSpec, generatedSpec));
+  const comparisons = [getEndpoints, getResponses, getParameters];
+  const [endpoints, responses, parameters] = comparisons.map((fn) => compare(customSpec, generatedSpec, fn));
 
   return {
     endpoints,

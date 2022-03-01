@@ -1,4 +1,13 @@
 import './pre-start'; // Must be the first import
-import { compare } from './tester';
+import { compareSpecifications } from './tester';
 
-compare('./src/tester/examples/specA.yaml', './src/tester/examples/specB.json');
+(async () => {
+  // tslint:disable-next-line:no-console
+  console.log(
+    JSON.stringify(
+      await compareSpecifications('./spec/tests/examples/v2.yaml', './spec/tests/examples/v3.yaml'),
+      null,
+      2
+    )
+  );
+})()

@@ -67,6 +67,7 @@
     "dist/**/*"
   ],
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.0.3",
     "command-line-args": "^5.2.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
@@ -76,8 +77,10 @@
     "http-status-codes": "^2.2.0",
     "jet-logger": "^1.1.5",
     "jsonfile": "^6.1.0",
+    "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.2.0",
@@ -88,6 +91,7 @@
     "@types/jasmine": "^3.10.3",
     "@types/js-yaml": "^4.0.5",
     "@types/jsonfile": "^6.1.0",
+    "@types/lodash": "^4.14.179",
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.21",
     "@types/node-fetch": "^2.6.1",

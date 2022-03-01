@@ -1,34 +1,16 @@
-import path from 'path';
-import yaml from 'js-yaml';
-import fs from 'fs';
+import SwaggerParser from "@apidevtools/swagger-parser";
+import { OpenAPIV3 } from "openapi-types";
+// @ts-ignore
+import converter from "swagger2openapi"
 
-import { OAPISpecification } from './types';
 import logger from 'jet-logger';
 
-type FilePath = string;
-const readSpecificationYAML = (filePath: FilePath) => yaml.load(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
-const readSpecificationJSON = (filePath: FilePath) =>
-  JSON.parse(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
-
-const isFilePath = (filePath: string): filePath is FilePath => {
-  try {
-    return fs.lstatSync(filePath).isFile();
-  } catch (e) {
-    logger.err(e);
-  }
-  return false;
-};
-
-export const readSpecification = (filePath: FilePath) => {
-  if (!isFilePath(filePath)) {
-    throw new Error(`Invalid path specified`);
-  }
-  switch (path.extname(filePath)) {
-    case '.yaml':
-      return readSpecificationYAML(filePath);
-    case '.json':
-      return readSpecificationJSON(filePath);
-    default:
-      throw new Error('Unsupported OpenAPI specification extension');
-  }
+export const readSpecification = async (filePath: string): Promise<OpenAPIV3.Document> => {
+  logger.info("Reading specification: " + filePath)
+  await SwaggerParser.validate(filePath)
+  const specification = await converter.convertFile(filePath, {
+    patch: true,
+    warnOnly: true
+  })
+  return await SwaggerParser.validate(specification.openapi) as OpenAPIV3.Document
 };
