@@ -7,7 +7,8 @@ import logger from 'jet-logger';
 
 type FilePath = string;
 const readSpecificationYAML = (filePath: FilePath) => yaml.load(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
-const readSpecificationJSON = (filePath: FilePath) => JSON.parse(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
+const readSpecificationJSON = (filePath: FilePath) =>
+  JSON.parse(fs.readFileSync(filePath, 'utf8')) as OAPISpecification;
 
 const isFilePath = (filePath: string): filePath is FilePath => {
   try {

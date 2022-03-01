@@ -28,17 +28,13 @@ const compareResponses = (customSpec: OAPISpecification, generatedSpec: OAPISpec
 
   const customResponses = customPaths.flatMap((url) =>
     (Object.keys(customSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(customSpec.paths[url][endpoint].responses).map(
-        (response) => `${url}#${endpoint}#${response}`,
-      ),
+      Object.keys(customSpec.paths[url][endpoint].responses).map((response) => `${url}#${endpoint}#${response}`),
     ),
   );
 
   const generatedResponses = generatedPaths.flatMap((url) =>
     (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
-      Object.keys(generatedSpec.paths[url][endpoint].responses).map(
-        (response) => `${url}#${endpoint}#${response}`,
-      ),
+      Object.keys(generatedSpec.paths[url][endpoint].responses).map((response) => `${url}#${endpoint}#${response}`),
     ),
   );
 
@@ -68,8 +64,7 @@ const compareParameters = (customSpec: OAPISpecification, generatedSpec: OAPISpe
     (Object.keys(generatedSpec.paths[url]) as HTTPMethod[]).flatMap((endpoint) =>
       'parameters' in generatedSpec.paths[url][endpoint]
         ? Object.keys(generatedSpec.paths[url][endpoint].parameters).map(
-            (parameter) =>
-              `${url}#${endpoint}#${generatedSpec.paths[url][endpoint].parameters[parameter].name}`,
+            (parameter) => `${url}#${endpoint}#${generatedSpec.paths[url][endpoint].parameters[parameter].name}`,
           )
         : [],
     ),
