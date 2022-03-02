@@ -1,4 +1,4 @@
-import {compareSpecifications} from "../../src/tester";
+import {compareSpecifications} from "../../src/tester/comparator";
 
 describe('Tester [Generic]', () => {
     it ("should throw an error for invalid/non-existent paths", async () => {

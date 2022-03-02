@@ -80,7 +80,9 @@
     "lodash": "^4.17.21",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
-    "swagger2openapi": "^7.0.8"
+    "numeral": "^2.0.6",
+    "swagger2openapi": "^7.0.8",
+    "table": "^6.8.0"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.2.0",
@@ -95,6 +97,7 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.21",
     "@types/node-fetch": "^2.6.1",
+    "@types/numeral": "^2.0.2",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
