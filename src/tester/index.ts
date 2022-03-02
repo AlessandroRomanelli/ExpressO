@@ -1,2 +1,2 @@
-export { compareSpecifications } from "./comparator";
-export { generateReport } from "./reporter"
+export { compareSpecifications } from './comparator';
+export { generateReport } from './reporter';
