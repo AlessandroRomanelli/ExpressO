@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { parseMainCommandLineArgs } from '../cli';
 import { expresso } from '../lib';
 import logger from 'jet-logger';
