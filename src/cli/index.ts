@@ -1,1 +1,1 @@
-export { parseMainCommandLineArgs } from "./parser"
+export { parseMainCommandLineArgs } from './parser';

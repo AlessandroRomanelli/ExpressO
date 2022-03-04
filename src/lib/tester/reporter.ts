@@ -16,7 +16,7 @@ type Parameter = Endpoint & {
   parameter: string;
 };
 
-type Model = Endpoint | Response | Parameter
+type Model = Endpoint | Response | Parameter;
 
 const parseMethod = (x: string): HTTPMethod => x.toUpperCase() as HTTPMethod;
 
@@ -74,13 +74,9 @@ const tableConfig: TableUserConfig = {
   },
 };
 
-type ModelMapping = (x: string) => Model
+type ModelMapping = (x: string) => Model;
 
-const generateTabularResults = (
-  results: string[],
-  mappingFn: ModelMapping,
-  iterates = ['pattern', 'method'],
-): string =>
+const generateTabularResults = (results: string[], mappingFn: ModelMapping, iterates = ['pattern', 'method']): string =>
   table(
     _.sortBy(results.map(mappingFn), iterates).map((x) => Object.values(x).reverse()),
     tableConfig,

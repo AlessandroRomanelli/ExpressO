@@ -1,26 +1,22 @@
-export type CLICommands = "compare" | "generate" | "monitor" | "test"
-export type CLISubOptions = CLIOptionsCompare | CLIOptionsMonitor | CLIOptionsGenerate | CLIOptionsTest
+export type CLICommands = 'compare' | 'generate' | 'monitor' | 'test';
+export type CLISubOptions = CLIOptionsCompare | CLIOptionsMonitor | CLIOptionsGenerate | CLIOptionsTest;
 
 export interface CLIOptions {
-  command: CLICommands,
-  subOptions: CLISubOptions
+  command: CLICommands;
+  subOptions: CLISubOptions;
 }
 
 export interface CLIOptionsTest {
-  json: boolean
-  fileA: string
+  json: boolean;
+  fileA: string;
 }
 
 export interface CLIOptionsCompare extends CLIOptionsTest {
-  fileB: string
+  fileB: string;
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface CLIOptionsMonitor {
-
-}
+export interface CLIOptionsMonitor {}
 
 // tslint:disable-next-line:no-empty-interface
-export interface CLIOptionsGenerate {
-
-}
+export interface CLIOptionsGenerate {}
