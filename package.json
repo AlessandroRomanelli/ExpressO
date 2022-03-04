@@ -3,6 +3,9 @@
   "version": "0.1.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "expresso": "dist/bin/expresso.js"
+  },
   "description": "An Express.js tool to statically analyze the backend, generating the specification for its routes using the OpenAPI standard.",
   "scripts": {
     "prepare": "npm run build",

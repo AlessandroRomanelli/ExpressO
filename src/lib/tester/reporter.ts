@@ -16,6 +16,8 @@ type Parameter = Endpoint & {
   parameter: string;
 };
 
+type Model = Endpoint | Response | Parameter
+
 const parseMethod = (x: string): HTTPMethod => x.toUpperCase() as HTTPMethod;
 
 const parseEndpoint = (x: string): Endpoint => {
@@ -72,9 +74,11 @@ const tableConfig: TableUserConfig = {
   },
 };
 
+type ModelMapping = (x: string) => Model
+
 const generateTabularResults = (
   results: string[],
-  mappingFn: (x: string) => Endpoint | Response | Parameter,
+  mappingFn: ModelMapping,
   iterates = ['pattern', 'method'],
 ): string =>
   table(
@@ -82,12 +86,12 @@ const generateTabularResults = (
     tableConfig,
   ).trimEnd();
 
-const generateResults = (title: string, results: string[], fn: (x: string) => Endpoint | Response | Parameter) => {
+const generateResults = (title: string, results: string[], fn: ModelMapping) => {
   if (!results.length) return `No ${title.toLowerCase()} entities detected`;
   return `${title} (${results.length}):\n${generateTabularResults(results, fn)}`;
 };
 
-const generateReportSubtype = (results: CoverageReport, name: string) => `${generateHeader(
+const generateReportSubtype = (results: CoverageReport, name: string, fn: ModelMapping) => `${generateHeader(
   `${name} coverage`,
   generateCoverage(results.coverage, name, results.matched.length + results.missing.length),
 )}
@@ -100,7 +104,7 @@ ${(
     ['Matched', results.matched],
   ] as [string, string[]][]
 )
-  .map(([title, res]) => generateResults(title, res, parseEndpoint))
+  .map(([title, res]) => generateResults(title, res, fn))
   .join('\n\n')}`;
 
 export const generateReport = (
@@ -111,10 +115,10 @@ export const generateReport = (
 
 ${(
   [
-    ['Endpoints', results.endpoints],
-    ['Responses', results.responses],
-    ['Parameters', results.parameters],
-  ] as [string, CoverageReport][]
+    ['Endpoints', results.endpoints, parseEndpoint],
+    ['Responses', results.responses, parseResponse],
+    ['Parameters', results.parameters, parseParameter],
+  ] as [string, CoverageReport, ModelMapping][]
 )
-  .map(([title, res]) => generateReportSubtype(res, title))
+  .map(([title, res, fn]) => generateReportSubtype(res, title, fn))
   .join('\n\n')}`;
