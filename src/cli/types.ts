@@ -7,10 +7,10 @@ export interface CLIOptions {
 }
 
 export interface CLISubOptions {
-  help: boolean
+  help: boolean;
 }
 
-export interface CLIOptionsTest extends CLISubOptions{
+export interface CLIOptionsTest extends CLISubOptions {
   json: boolean;
   fileA: string;
 }

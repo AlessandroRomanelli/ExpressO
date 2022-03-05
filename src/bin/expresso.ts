@@ -9,6 +9,6 @@ import logger from 'jet-logger';
   try {
     await expresso(options);
   } catch (e) {
-    logger.err(e)
+    logger.err(e);
   }
 })();
