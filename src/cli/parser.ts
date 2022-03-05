@@ -1,58 +1,37 @@
 import commandLineArgs from 'command-line-args';
+
 import {
-  CLICommands,
-  CLIOptions,
-  CLIOptionsCompare,
-  CLIOptionsGenerate,
-  CLIOptionsMonitor,
-  CLIOptionsTest,
-  CLISubOptions,
-} from './types';
+  CLIOptions, CLIProgram,
+  CLISubOptions
+} from "./types";
 
-const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare => {
-  const parseCommandDefinitions = [
-    { name: 'files', defaultOption: true },
-    { name: 'json', alias: 'J', type: Boolean, defaultValue: false },
-  ];
-
-  const parseOptions = commandLineArgs(parseCommandDefinitions, { stopAtFirstUnknown: true, argv });
-  const [fileA, fileB] = parseOptions.files;
-
-  return {
-    fileA,
-    fileB,
-    json: parseOptions.json,
-  };
-};
-
-const parseTestCommandLineArgs = (argv: string[]): CLIOptionsTest => {
-  const testCommandDefinitions = [
-    { name: 'file', defaultOption: true },
-    { name: 'json', alias: 'J', type: Boolean, defaultValue: false },
-  ];
-
-  const testOptions = commandLineArgs(testCommandDefinitions, { stopAtFirstUnknown: true, argv });
-  return {
-    fileA: testOptions.file,
-    json: testOptions.json,
-  };
-};
-
-const parseMonitorCommandLineArgs = (argv: string[]): CLIOptionsMonitor => {
-  return {};
-};
-
-const parseGenerateCommandLineArgs = (argv: string[]): CLIOptionsGenerate => {
-  return {};
-};
+import {
+  parseCompareCommandLineArgs,
+  parseGenerateCommandLineArgs,
+  parseMonitorCommandLineArgs,
+  parseTestCommandLineArgs
+} from "./commands";
 
 export const parseMainCommandLineArgs = (): CLIOptions => {
-  const mainCommandDefinitions = [{ name: 'command', defaultOption: true }];
+  const utilsCommandDefinitions = [
+    { name: 'version', alias: 'V', type: Boolean},
+    { name: 'help', alias: 'H', type: Boolean}
+  ]
 
-  const mainOptions = commandLineArgs(mainCommandDefinitions, { stopAtFirstUnknown: true });
-  const argv = mainOptions._unknown || [];
+  const utilsOptions = commandLineArgs(utilsCommandDefinitions, { stopAtFirstUnknown: true })
+  let argv = utilsOptions._unknown || []
 
-  const fnHandlers: { [key in CLICommands]: (argv: string[]) => CLISubOptions } = {
+  if (utilsOptions.version) return { command: 'version' }
+  if (utilsOptions.help) return { command: 'help'}
+
+  const mainCommandDefinitions = [
+    { name: 'command', defaultOption: true }
+  ];
+
+  const mainOptions = commandLineArgs(mainCommandDefinitions, { stopAtFirstUnknown: true, argv });
+  argv = mainOptions._unknown || [];
+
+  const fnHandlers: { [key in CLIProgram]: (argv: string[]) => CLISubOptions } = {
     compare: parseCompareCommandLineArgs,
     test: parseTestCommandLineArgs,
     monitor: parseMonitorCommandLineArgs,
@@ -61,16 +40,10 @@ export const parseMainCommandLineArgs = (): CLIOptions => {
 
   const { command } = mainOptions;
   if (!(command in fnHandlers)) {
-    throw new Error(
-      'Unsupported command. The following commands are available: ' +
-        Object.keys(fnHandlers)
-          .map((x) => `'${x}'`)
-          .join(', ') +
-        '.',
-    );
+    return { command: 'help' }
   }
 
-  const subOptions = fnHandlers[mainOptions.command as CLICommands](argv);
+  const subOptions = fnHandlers[mainOptions.command as CLIProgram](argv);
 
   return {
     command,
