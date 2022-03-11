@@ -1,3 +1,5 @@
+// tslint:disable:no-empty-interface
+
 export type CLIProgram = 'compare' | 'generate' | 'monitor' | 'test';
 export type CLICommand = CLIProgram | 'version' | 'help';
 
@@ -19,10 +21,10 @@ export interface CLIOptionsCompare extends CLIOptionsTest {
   fileB: string;
 }
 
-// tslint:disable-next-line:no-empty-interface
-export interface CLIOptionsMonitor extends CLISubOptions {
-  root?: string
+export interface CLIOptionsSpecifcation extends CLISubOptions {
+  root: string
 }
 
-// tslint:disable-next-line:no-empty-interface
-export interface CLIOptionsGenerate extends CLISubOptions {}
+export interface CLIOptionsMonitor extends CLIOptionsSpecifcation {}
+
+export interface CLIOptionsGenerate extends CLIOptionsSpecifcation {}
