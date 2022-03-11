@@ -1,42 +1,47 @@
-import express from "express"
-import { Endpoint } from "./Endpoint";
-import { Method } from "./Method";
+import express from 'express';
+import { Endpoint } from './Endpoint';
+import { Method } from './Method';
 
-export type ExpressHandler = express.Express | express.Application | express.Router
+export type ExpressHandler = express.Express | express.Application | express.Router;
 export class Handler {
-  private readonly _instance: ExpressHandler
-  private readonly _endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {}
-  private readonly _routers: { [key: string]: Handler } = {}
+  private readonly _instance: ExpressHandler;
+  private readonly _endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
+  private readonly _routers: { [key: string]: Handler } = {};
 
   constructor(app: ExpressHandler) {
-      this._instance = app
+    this._instance = app;
   }
 
   add(endpoint: Endpoint) {
-    const obj = this._endpoints[endpoint.path] || {}
-    obj[endpoint.method] = endpoint
-    this._endpoints[endpoint.path] = obj
+    const obj = this._endpoints[endpoint.path] || {};
+    obj[endpoint.method] = endpoint;
+    this._endpoints[endpoint.path] = obj;
   }
 
   mount(path: string, router: Handler) {
-    this._routers[path] = router
+    this._routers[path] = router;
   }
 
-  get endpoints() { return this._endpoints }
-  get instance() { return this._instance }
-  get routers() { return this._routers }
+  get endpoints() {
+    return this._endpoints;
+  }
+  get instance() {
+    return this._instance;
+  }
+  get routers() {
+    return this._routers;
+  }
 
-  getEndpoints(basePath= "") {
-    const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {}
+  getEndpoints(basePath = '') {
+    const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
     for (const path of Object.keys(this._endpoints)) {
-      const fullPath = `${basePath}${path}`
-      endpoints[fullPath] = this._endpoints[path]
+      const fullPath = `${basePath}${path}`;
+      endpoints[fullPath] = this._endpoints[path];
     }
 
     for (const path of Object.keys(this._routers)) {
-      Object.assign(endpoints, this._routers[path].getEndpoints(path))
+      Object.assign(endpoints, this._routers[path].getEndpoints(path));
     }
-    return endpoints
+    return endpoints;
   }
-
 }

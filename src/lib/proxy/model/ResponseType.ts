@@ -1,3 +1,3 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 
-export type ResponseType = StatusCodes
+export type ResponseType = StatusCodes;

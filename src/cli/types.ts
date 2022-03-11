@@ -22,7 +22,7 @@ export interface CLIOptionsCompare extends CLIOptionsTest {
 }
 
 export interface CLIOptionsSpecifcation extends CLISubOptions {
-  root: string
+  root: string;
 }
 
 export interface CLIOptionsMonitor extends CLIOptionsSpecifcation {}

@@ -1,8 +1,7 @@
-import { Handler } from "./Handler";
+import { Handler } from './Handler';
 
-export * from "./Handler"
-export * from "./Endpoint"
-export * from "./Method"
+export * from './Handler';
+export * from './Endpoint';
+export * from './Method';
 
-export const models: Set<Handler> = new Set()
-
+export const models: Set<Handler> = new Set();
