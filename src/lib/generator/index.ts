@@ -23,19 +23,19 @@ export const generateSpecification = async (rootDirPath: string) => {
     const pkg = JSON.parse(await readFile(path.resolve(replacedProjectPath, 'package.json'), 'utf-8'));
     if (pkg.scripts.build) {
       await exec(pkg.scripts.build, execOptions);
-      logger.info("Build of work copy was successful")
+      logger.info('Build of work copy was successful');
     }
-    const {  stdout, stderr } = await exec(pkg.scripts.start, execOptions);
-    if (stdout) logger.info(stdout)
-    if (stderr) logger.err(stderr)
+    const { stdout, stderr } = await exec(pkg.scripts.start, execOptions);
+    if (stdout) logger.info(stdout);
+    if (stderr) logger.err(stderr);
   } catch (e) {
     logger.err(e);
   }
 
   try {
-    await remove("../.expresso-runtime")
-    logger.info("Expresso work copy cleaned up")
+    await remove('../.expresso-runtime');
+    logger.info('Expresso work copy cleaned up');
   } catch (e) {
-    logger.err(e)
+    logger.err(e);
   }
 };
