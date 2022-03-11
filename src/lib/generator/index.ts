@@ -3,7 +3,7 @@ import util from 'util';
 import logger from 'jet-logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
-import fs from 'fs-extra';
+import { readFile, remove } from 'fs-extra';
 
 const exec = util.promisify(syncExec);
 
@@ -20,12 +20,22 @@ export const generateSpecification = async (rootDirPath: string) => {
   };
 
   try {
-    const pkg = JSON.parse(await fs.readFile(path.resolve(replacedProjectPath, 'package.json'), 'utf-8'));
+    const pkg = JSON.parse(await readFile(path.resolve(replacedProjectPath, 'package.json'), 'utf-8'));
     if (pkg.scripts.build) {
       await exec(pkg.scripts.build, execOptions);
+      logger.info("Build of work copy was successful")
     }
-    await exec(pkg.scripts.start, execOptions);
+    const {  stdout, stderr } = await exec(pkg.scripts.start, execOptions);
+    if (stdout) logger.info(stdout)
+    if (stderr) logger.err(stderr)
   } catch (e) {
     logger.err(e);
+  }
+
+  try {
+    await remove("../.expresso-runtime")
+    logger.info("Expresso work copy cleaned up")
+  } catch (e) {
+    logger.err(e)
   }
 };
