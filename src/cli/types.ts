@@ -20,7 +20,9 @@ export interface CLIOptionsCompare extends CLIOptionsTest {
 }
 
 // tslint:disable-next-line:no-empty-interface
-export interface CLIOptionsMonitor extends CLISubOptions {}
+export interface CLIOptionsMonitor extends CLISubOptions {
+  root?: string
+}
 
 // tslint:disable-next-line:no-empty-interface
 export interface CLIOptionsGenerate extends CLISubOptions {}

@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { table } from 'table';
 
 // tslint:disable:no-console
