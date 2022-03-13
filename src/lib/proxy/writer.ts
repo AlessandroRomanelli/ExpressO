@@ -34,10 +34,10 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
     logger.warn("Could not read from project's package.json");
   }
 
-  const paths = (await Promise.all(
-    Array.from(models)
-      .map(async (x) => await handlerToSpecification(x))))
-    .reduce((curr, prev) => Object.assign(curr, prev), {})
+  const paths = (await Promise.all(Array.from(models).map(async (x) => await handlerToSpecification(x)))).reduce(
+    (curr, prev) => Object.assign(curr, prev),
+    {},
+  );
 
   return {
     info: {
@@ -54,6 +54,6 @@ export const writeSpecification = async (projectRoot = '.', models: Set<Handler>
   const filePath = path.resolve(projectRoot, 'openapi.json');
   await writeFile(filePath, JSON.stringify(spec, null, 4));
   logger.info(`OpenAPI specification successfully generated at '${filePath}'`);
-  logger.info("Aborting process...")
-  process.exit()
+  logger.info('Aborting process...');
+  process.exit();
 };

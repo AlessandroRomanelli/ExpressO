@@ -10,11 +10,11 @@ const delayFn = (fn: () => void, delayMs: number) => {
   let timer: NodeJS.Timeout;
   return () => {
     if (timer) {
-      clearTimeout(timer)
+      clearTimeout(timer);
     }
-    timer = setTimeout(fn, delayMs)
-  }
-}
+    timer = setTimeout(fn, delayMs);
+  };
+};
 
 const delayedWriteSpecification = delayFn(() => writeSpecification(process.cwd(), models), 2500);
 
