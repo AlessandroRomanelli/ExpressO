@@ -32,7 +32,7 @@ export class Handler {
     return this._routers;
   }
 
-  getEndpoints(basePath = ''): { [ k1: string]: { [k2 in Method]: Endpoint } } {
+  getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
     for (const path of Object.keys(this._endpoints)) {
       const fullPath = `${basePath}${path}`;
