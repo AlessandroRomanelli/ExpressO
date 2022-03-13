@@ -34,14 +34,14 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
     logger.warn("Could not read from project's package.json");
   }
 
+  const paths = await Promise.all(Array.from(models).map(async (x) => await handlerToSpecification(x)))
+
   return {
     info: {
       title: pkg.name || '',
       version: pkg.version || '0.0.0',
     },
-    paths: Array.from(models)
-      .map(handlerToSpecification)
-      .reduce((curr, prev) => Object.assign(curr, prev), {}),
+    paths: paths.reduce((curr, prev) => Object.assign(curr, prev), {}),
     openapi: '3.0.0',
   };
 };

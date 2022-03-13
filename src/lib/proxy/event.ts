@@ -6,18 +6,18 @@ class OAPIEmitter extends EventEmitter {}
 
 export const emitter = new OAPIEmitter();
 
-const delayFunction = (fn: (...a: any[]) => any, delayMs: number) => {
+const delayFn = (fn: () => void, delayMs: number) => {
   let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return () => {
     if (timer) {
-      clearTimeout(timer);
+      clearTimeout(timer)
     }
-    timer = setTimeout(fn, delayMs, ...args);
-  };
-};
+    timer = setTimeout(fn, delayMs)
+  }
+}
 
-const delayedWriteSpecification = delayFunction(writeSpecification, 1000);
+const delayedWriteSpecification = delayFn(() => writeSpecification(process.cwd(), models), 1000);
 
 emitter.on('api-update', async () => {
-  delayedWriteSpecification(process.cwd(), models);
+  delayedWriteSpecification();
 });
