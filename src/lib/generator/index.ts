@@ -3,7 +3,7 @@ import util from 'util';
 import logger from 'jet-logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
-import { readFile, remove } from 'fs-extra';
+import { move, readFile, remove } from "fs-extra";
 
 const exec = util.promisify(syncExec);
 
@@ -30,6 +30,12 @@ export const generateSpecification = async (rootDirPath: string) => {
     if (stderr) logger.err(stderr);
   } catch (e) {
     logger.err(e);
+  }
+
+  try {
+    await move(path.resolve(replacedProjectPath, "openapi.json"), path.resolve(rootDirPath, "openapi.json"))
+  } catch (e) {
+    logger.err(e)
   }
 
   try {
