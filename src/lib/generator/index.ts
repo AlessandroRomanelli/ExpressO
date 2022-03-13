@@ -15,7 +15,7 @@ export const generateSpecification = async (rootDirPath: string) => {
   const replacedProjectPath = path.resolve(rootDirPath, '../.expresso-runtime');
 
   const execOptions: ExecOptions = {
-    cwd: rootDirPath,
+    cwd: replacedProjectPath,
     timeout: 5000,
   };
 
@@ -25,7 +25,7 @@ export const generateSpecification = async (rootDirPath: string) => {
       await exec(pkg.scripts.build, execOptions);
       logger.info('Build of work copy was successful');
     }
-    const { stdout, stderr } = await exec(pkg.scripts.start, execOptions);
+    const { stdout, stderr } = await exec("npm i expresso-api && " + pkg.scripts.start, execOptions);
     if (stdout) logger.info(stdout);
     if (stderr) logger.err(stderr);
   } catch (e) {
