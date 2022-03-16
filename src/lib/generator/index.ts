@@ -7,10 +7,20 @@ import { move, remove } from 'fs-extra';
 
 const exec = util.promisify(syncExec);
 
-export const generateSpecification = async (rootDirPath: string) => {
+const cleanUp = async (basePath: string) => {
+  try {
+    await remove(path.resolve(basePath, '.expresso-runtime'));
+    logger.info('Expresso work copy cleaned up');
+  } catch (e) {
+    logger.err(e);
+  }
+}
+
+export const generateSpecification = async (rootDirPath: string, startLine: string) => {
   logger.info(`Generating OpenAPI specification for project with root at '${rootDirPath}'`);
   if (!(await replaceExpress(rootDirPath))) {
-    return logger.err('Failed to replace express module');
+    logger.err('Failed to replace express module');
+    return cleanUp(rootDirPath)
   }
   const replacedProjectPath = path.resolve(rootDirPath, '.expresso-runtime');
 
@@ -20,8 +30,7 @@ export const generateSpecification = async (rootDirPath: string) => {
   };
 
   try {
-    // TODO: Parametrize the start command line
-    const { stdout, stderr } = await exec("npm start", execOptions);
+    const { stdout, stderr } = await exec(startLine, execOptions);
     if (stdout) logger.info(stdout);
     if (stderr) logger.err(stderr);
   } catch (e) {
@@ -34,10 +43,5 @@ export const generateSpecification = async (rootDirPath: string) => {
     logger.err(e);
   }
 
-  try {
-    await remove('.expresso-runtime');
-    logger.info('Expresso work copy cleaned up');
-  } catch (e) {
-    logger.err(e);
-  }
+  return cleanUp(rootDirPath)
 };
