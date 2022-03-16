@@ -1,11 +1,17 @@
 import path from 'path';
-import { Handler, Method } from './model';
+import { Endpoint, Handler, Method } from "./model";
 import { readFile, writeFile } from 'fs-extra';
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
 
-const handlerToSpecification = async (handler: Handler): Promise<OpenAPIV3.PathsObject> => {
+const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
+  return {
+    responses: endpoint.responses,
+  }
+}
+
+const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
   const endpoints = handler.getEndpoints();
   return Object.keys(endpoints)
     .map((pattern) => {
@@ -15,10 +21,8 @@ const handlerToSpecification = async (handler: Handler): Promise<OpenAPIV3.Paths
           (method) =>
             [
               method,
-              {
-                responses: endpoints[pattern][method].responses,
-              },
-            ] as [Method, { responses: StatusCodes[] }],
+              endpointToSpecification(endpoints[pattern][method]),
+            ] as [Method, OpenAPIV3.OperationObject],
         )
         .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
       return [pattern, patternMethods] as [string, { [k: string]: { responses: StatusCodes[] } }];

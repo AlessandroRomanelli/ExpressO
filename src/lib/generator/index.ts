@@ -3,7 +3,7 @@ import util from 'util';
 import logger from 'jet-logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
-import { move, readFile, remove } from 'fs-extra';
+import { move, remove } from 'fs-extra';
 
 const exec = util.promisify(syncExec);
 
@@ -12,7 +12,7 @@ export const generateSpecification = async (rootDirPath: string) => {
   if (!(await replaceExpress(rootDirPath))) {
     return logger.err('Failed to replace express module');
   }
-  const replacedProjectPath = path.resolve(rootDirPath, '../.expresso-runtime');
+  const replacedProjectPath = path.resolve(rootDirPath, '.expresso-runtime');
 
   const execOptions: ExecOptions = {
     cwd: replacedProjectPath,
@@ -20,12 +20,8 @@ export const generateSpecification = async (rootDirPath: string) => {
   };
 
   try {
-    const pkg = JSON.parse(await readFile(path.resolve(replacedProjectPath, 'package.json'), 'utf-8'));
-    if (pkg.scripts.build) {
-      await exec(pkg.scripts.build, execOptions);
-      logger.info('Build of work copy was successful');
-    }
-    const { stdout, stderr } = await exec('npm i expresso-api && ' + pkg.scripts.start, execOptions);
+    // TODO: Parametrize the start command line
+    const { stdout, stderr } = await exec("npm start", execOptions);
     if (stdout) logger.info(stdout);
     if (stderr) logger.err(stderr);
   } catch (e) {
@@ -39,7 +35,7 @@ export const generateSpecification = async (rootDirPath: string) => {
   }
 
   try {
-    await remove('../.expresso-runtime');
+    await remove('.expresso-runtime');
     logger.info('Expresso work copy cleaned up');
   } catch (e) {
     logger.err(e);
