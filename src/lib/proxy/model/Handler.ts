@@ -32,8 +32,6 @@ export class Handler {
     return this._routers;
   }
 
-
-
   // TODO: Replace route parameters :x with {x}
   getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};

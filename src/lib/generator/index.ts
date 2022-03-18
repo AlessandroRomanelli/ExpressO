@@ -14,13 +14,13 @@ const cleanUp = async (basePath: string) => {
   } catch (e) {
     logger.err(e);
   }
-}
+};
 
 export const generateSpecification = async (rootDirPath: string, startLine: string) => {
   logger.info(`Generating OpenAPI specification for project with root at '${rootDirPath}'`);
   if (!(await replaceExpress(rootDirPath))) {
     logger.err('Failed to replace express module');
-    return cleanUp(rootDirPath)
+    return cleanUp(rootDirPath);
   }
   const replacedProjectPath = path.resolve(rootDirPath, '.expresso-runtime');
 
@@ -39,11 +39,11 @@ export const generateSpecification = async (rootDirPath: string, startLine: stri
 
   try {
     await move(path.resolve(replacedProjectPath, 'openapi.json'), path.resolve(rootDirPath, 'openapi.json'), {
-      overwrite: true
+      overwrite: true,
     });
   } catch (e) {
     logger.err(e);
   }
 
-  return cleanUp(rootDirPath)
+  return cleanUp(rootDirPath);
 };

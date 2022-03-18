@@ -1,5 +1,5 @@
 import path from 'path';
-import { stat, move, copy, remove, readFile } from "fs-extra";
+import { stat, move, copy, remove, readFile } from 'fs-extra';
 import logger from 'jet-logger';
 import filesize from 'filesize';
 
@@ -21,7 +21,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       return false;
     }
   } catch (e) {
-    return false
+    return false;
   }
 
   // Remove a previously existing work copy within the provided folder
@@ -34,14 +34,16 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
 
   // Ensure that expresso-api is installed locally
   try {
-    const pkg = JSON.parse(await readFile(path.resolve(basePath, "package.json"), 'utf-8'))
-    if (!Object.keys(pkg.dependencies).includes("expresso-api")) {
-      logger.err("'expresso-api' is not present in the package.json, please install the package locally with:\n'npm install --save expresso-api'")
-      return false
+    const pkg = JSON.parse(await readFile(path.resolve(basePath, 'package.json'), 'utf-8'));
+    if (!Object.keys(pkg.dependencies).includes('expresso-api')) {
+      logger.err(
+        "'expresso-api' is not present in the package.json, please install the package locally with:\n'npm install --save expresso-api'",
+      );
+      return false;
     }
   } catch (e) {
-    logger.err(`Could not find package.json file within '${basePath}'`)
-    return false
+    logger.err(`Could not find package.json file within '${basePath}'`);
+    return false;
   }
 
   try {
@@ -49,23 +51,21 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     logger.info(`Creating work copy for ${basePath} (${filesize(size)})`);
     // Copy all the contents of the provided directory into work copy directory
     // Ensuring node_modules folder contents are not copied
-    await copy(
-      basePath, path.resolve(basePath, '../.expresso-runtime'),
-      {
-        recursive: true,
-        filter: (src) => !src.includes("node_modules")
-      });
+    await copy(basePath, path.resolve(basePath, '../.expresso-runtime'), {
+      recursive: true,
+      filter: (src) => !src.includes('node_modules'),
+    });
     // Move it within the original folder
-    await move(path.resolve(basePath, "../.expresso-runtime"), path.resolve(basePath, ".expresso-runtime"))
+    await move(path.resolve(basePath, '../.expresso-runtime'), path.resolve(basePath, '.expresso-runtime'));
     logger.info(`Created folder '.expresso-runtime' work copy`);
     // Install the 'expresso-api' as 'express' within the work copy
     await copy(
-      path.resolve(basePath, "node_modules/expresso-api"),
-      path.resolve(basePath, ".expresso-runtime/node_modules/express"),
+      path.resolve(basePath, 'node_modules/expresso-api'),
+      path.resolve(basePath, '.expresso-runtime/node_modules/express'),
       {
-        recursive: true
-      }
-    )
+        recursive: true,
+      },
+    );
     logger.info(`Created 'express' proxy within work copy`);
   } catch (e) {
     logger.err(e);

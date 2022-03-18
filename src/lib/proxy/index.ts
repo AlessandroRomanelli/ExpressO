@@ -1,5 +1,5 @@
 import express from 'express';
-import { Endpoint, ExpressHandler, ExpressHandlerFunction, Handler, HTTP_METHODS, Method, models } from "./model";
+import { Endpoint, ExpressHandler, ExpressHandlerFunction, Handler, HTTP_METHODS, Method, models } from './model';
 import { emitter } from './event';
 
 const isHTTPMethod = (method: string): method is Method => {
@@ -10,11 +10,7 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
   const routeHandlerEndpoint = (method: Method): ProxyHandler<ExpressHandlerFunction> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
-      app.add(new Endpoint(
-        method,
-        path,
-        handlers,
-      ));
+      app.add(new Endpoint(method, path, handlers));
       emitter.emit('api-update');
     },
   });
@@ -24,7 +20,7 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
       if (argArray.length < 2) return;
       const [path, ...[router]] = argArray as [string, ...express.IRouter[]];
       app.mount(path, Reflect.get(router, 'model'));
-      models.delete(Reflect.get(router, 'model'))
+      models.delete(Reflect.get(router, 'model'));
       emitter.emit('api-update');
     },
   };

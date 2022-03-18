@@ -1,8 +1,7 @@
 // tslint:disable:no-console
 import { CLIOptionsGenerate } from '../../cli/types';
 import { generateSpecification } from '../generator';
-import { table } from "table";
-
+import { table } from 'table';
 
 const tableOptions = {
   singleLine: true,
@@ -16,10 +15,16 @@ export const expressoGenerate = async (options: CLIOptionsGenerate): Promise<voi
       `Usage: expresso generate [\u003croot\ufe65, start]
 
 Options descriptions:
-${table([
-  ["root", "the root of the Express.js project to generate an OpenAPI specification for, defaults to current working directory"],
-  ["start", "command line that will be used to start the project, defaults to 'npm start'"],
-], tableOptions)}
+${table(
+  [
+    [
+      'root',
+      'the root of the Express.js project to generate an OpenAPI specification for, defaults to current working directory',
+    ],
+    ['start', "command line that will be used to start the project, defaults to 'npm start'"],
+  ],
+  tableOptions,
+)}
 `,
     );
   }

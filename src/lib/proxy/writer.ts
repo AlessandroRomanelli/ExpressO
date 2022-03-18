@@ -1,6 +1,6 @@
 import path from 'path';
-import { Endpoint, Handler, Method } from "./model";
-import { readFile, writeJSON } from "fs-extra";
+import { Endpoint, Handler, Method } from './model';
+import { readFile, writeJSON } from 'fs-extra';
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
@@ -8,12 +8,12 @@ import logger from 'jet-logger';
 const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
   return {
     responses: endpoint.responses,
-  }
-}
+  };
+};
 
 const patternToSpecification = (pattern: string): string => {
-  return pattern.replace(/(?<=\/):(\w+)/g,'{$1}')
-}
+  return pattern.replace(/(?<=\/):(\w+)/g, '{$1}');
+};
 
 const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
   const endpoints = handler.getEndpoints();
@@ -23,10 +23,7 @@ const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
       const patternMethods = methods
         .map(
           (method) =>
-            [
-              method,
-              endpointToSpecification(endpoints[pattern][method]),
-            ] as [Method, OpenAPIV3.OperationObject],
+            [method, endpointToSpecification(endpoints[pattern][method])] as [Method, OpenAPIV3.OperationObject],
         )
         .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
       return [pattern, patternMethods] as [string, { [k: string]: { responses: StatusCodes[] } }];
@@ -52,7 +49,7 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
       title: pkg.name || '',
       version: pkg.version || '0.0.0',
     },
-    paths: Object.fromEntries(Object.entries(paths).map(([k,v]) => [patternToSpecification(k), v])),
+    paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [patternToSpecification(k), v])),
     openapi: '3.1.0',
   };
 };
