@@ -38,7 +38,9 @@ export const generateSpecification = async (rootDirPath: string, startLine: stri
   }
 
   try {
-    await move(path.resolve(replacedProjectPath, 'openapi.json'), path.resolve(rootDirPath, 'openapi.json'));
+    await move(path.resolve(replacedProjectPath, 'openapi.json'), path.resolve(rootDirPath, 'openapi.json'), {
+      overwrite: true
+    });
   } catch (e) {
     logger.err(e);
   }

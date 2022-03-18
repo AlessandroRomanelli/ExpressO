@@ -3,6 +3,13 @@ import { CLIOptionsGenerate } from '../../cli/types';
 import { generateSpecification } from '../generator';
 import { table } from "table";
 
+
+const tableOptions = {
+  singleLine: true,
+  drawHorizontalLine: () => false,
+  drawVerticalLine: () => false,
+};
+
 export const expressoGenerate = async (options: CLIOptionsGenerate): Promise<void> => {
   if (options.help) {
     return console.log(
@@ -12,7 +19,7 @@ Options descriptions:
 ${table([
   ["root", "the root of the Express.js project to generate an OpenAPI specification for, defaults to current working directory"],
   ["start", "command line that will be used to start the project, defaults to 'npm start'"],
-])}
+], tableOptions)}
 `,
     );
   }

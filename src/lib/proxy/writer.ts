@@ -1,6 +1,6 @@
 import path from 'path';
 import { Endpoint, Handler, Method } from "./model";
-import { readFile, writeFile } from 'fs-extra';
+import { readFile, writeJSON } from "fs-extra";
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
@@ -9,6 +9,10 @@ const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject 
   return {
     responses: endpoint.responses,
   }
+}
+
+const patternToSpecification = (pattern: string): string => {
+  return pattern.replace(/(?<=\/):(\w+)/g,'{$1}')
 }
 
 const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
@@ -38,7 +42,7 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
     logger.warn("Could not read from project's package.json");
   }
 
-  const paths = (await Promise.all(Array.from(models).map(async (x) => await handlerToSpecification(x)))).reduce(
+  const paths: OpenAPIV3.PathsObject = (await Promise.all(Array.from(models).map(handlerToSpecification))).reduce(
     (curr, prev) => Object.assign(curr, prev),
     {},
   );
@@ -48,15 +52,17 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
       title: pkg.name || '',
       version: pkg.version || '0.0.0',
     },
-    paths,
-    openapi: '3.0.0',
+    paths: Object.fromEntries(Object.entries(paths).map(([k,v]) => [patternToSpecification(k), v])),
+    openapi: '3.1.0',
   };
 };
 
 export const writeSpecification = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
   const spec = await modelsToSpecification(projectRoot, models);
   const filePath = path.resolve(projectRoot, 'openapi.json');
-  await writeFile(filePath, JSON.stringify(spec, null, 4));
+  await writeJSON(filePath, spec, {
+    spaces: 4,
+  });
   logger.info(`OpenAPI specification successfully generated at '${filePath}'`);
   logger.info('Aborting process...');
   process.exit();

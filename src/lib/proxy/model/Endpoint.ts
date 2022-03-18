@@ -11,16 +11,16 @@ export class Endpoint {
   readonly method: Method;
   readonly path: string;
   readonly handlers: ExpressHandlerFunction[];
-  readonly responses: OpenAPIV3.ResponsesObject
-  readonly params: OpenAPIV3.ParameterObject[]
+  readonly responses: OpenAPIV3.ResponsesObject = {}
+  readonly params: OpenAPIV3.ParameterObject[] = []
 
   constructor(method: Method, path: string, handlers: ExpressHandlerFunction[]) {
     this.method = method
     this.path = path
     this.handlers = handlers
-    const [ responses, params ] = this.analyzeHandlers(handlers)
-    this.responses = responses
-    this.params = params
+    // const [ responses, params ] = this.analyzeHandlers(handlers)
+    // this.responses = responses
+    // this.params = params
   }
 
   getResponses(handler: ExpressHandlerFunction): OpenAPIV3.ResponsesObject {

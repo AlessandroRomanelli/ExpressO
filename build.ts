@@ -5,19 +5,15 @@ import { promisify } from "util"
 
 (async () => {
     const exec = promisify(syncExec)
-    try {
-        // Remove current build
-        await remove('./dist/');
-        // Copy back-end files
-        const { stdout, stderr } = await exec('tsc --build tsconfig.prod.json', {
-            cwd: './'
-        })
-        if (!!stdout) logger.info(stdout)
-        if (!!stderr) logger.err(stderr)
+    // Remove current build
+    await remove('./dist/');
+    // Copy back-end files
+    const { stdout, stderr } = await exec('tsc --build tsconfig.prod.json', {
+        cwd: './'
+    })
+    if (stdout) logger.info(stdout)
+    if (stderr) logger.err(stderr)
 
-        logger.info("Project built successfully")
-    } catch (err) {
-        logger.err(err);
-    }
+    logger.info("Project built successfully")
 })();
 

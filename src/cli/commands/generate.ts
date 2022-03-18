@@ -13,6 +13,6 @@ export const parseGenerateCommandLineArgs = (argv: string[]): CLIOptionsGenerate
   return {
     help: parseOptions.help,
     root: parseOptions.root,
-    startLine: parseOptions.startLine
+    startLine: parseOptions.start
   };
 };

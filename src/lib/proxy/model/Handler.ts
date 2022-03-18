@@ -33,6 +33,7 @@ export class Handler {
   }
 
 
+
   // TODO: Replace route parameters :x with {x}
   getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
@@ -40,9 +41,9 @@ export class Handler {
       const fullPath = `${basePath}${path}`;
       endpoints[fullPath] = this._endpoints[path];
     }
-
     for (const path of Object.keys(this._routers)) {
-      Object.assign(endpoints, this._routers[path].getEndpoints(path));
+      const fullPath = `${basePath}${path}`;
+      Object.assign(endpoints, this._routers[path].getEndpoints(fullPath));
     }
     return endpoints;
   }
