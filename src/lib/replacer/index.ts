@@ -37,7 +37,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     const pkg = JSON.parse(await readFile(path.resolve(basePath, 'package.json'), 'utf-8'));
     if (!Object.keys(pkg.dependencies).includes('expresso-api')) {
       logger.err(
-        "'expresso-api' is not present in the package.json, please install the package locally with:\n'npm install --save expresso-api'",
+        "'expresso-api' is not present in the package.json, please install the package locally with:\n'npm install expresso-api'",
       );
       return false;
     }

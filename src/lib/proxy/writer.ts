@@ -45,12 +45,12 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
   );
 
   return {
+    openapi: '3.1.0',
     info: {
       title: pkg.name || '',
       version: pkg.version || '0.0.0',
     },
     paths: Object.fromEntries(Object.entries(paths).map(([k, v]) => [patternToSpecification(k), v])),
-    openapi: '3.1.0',
   };
 };
 

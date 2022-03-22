@@ -4,7 +4,6 @@ import { expressoVersion } from './version';
 import { expressoHelp } from './help';
 import { expressoGenerate } from './generate';
 
-// tslint:disable:no-empty
 export const expresso = async (options: CLIOptions): Promise<void> => {
   if (options.command === 'version') {
     return await expressoVersion();
@@ -14,7 +13,9 @@ export const expresso = async (options: CLIOptions): Promise<void> => {
     return await expressoCompare(options.subOptions as CLIOptionsCompare);
   } else if (options.command === 'generate') {
     return await expressoGenerate(options.subOptions as CLIOptionsGenerate);
+    // eslint-disable-next-line no-empty
   } else if (options.command === 'monitor') {
+    // eslint-disable-next-line no-empty
   } else if (options.command === 'test') {
   }
 };

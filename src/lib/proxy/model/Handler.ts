@@ -32,7 +32,7 @@ export class Handler {
     return this._routers;
   }
 
-  // TODO: Replace route parameters :x with {x}
+  // TODO: Add sorting depending on operation order
   getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
     for (const path of Object.keys(this._endpoints)) {

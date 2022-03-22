@@ -3,6 +3,8 @@
 export type CLIProgram = 'compare' | 'generate' | 'monitor' | 'test';
 export type CLICommand = CLIProgram | 'version' | 'help';
 
+export type OAPIFormat = 'json' | 'yaml'
+
 export interface CLIOptions {
   command: CLICommand;
   subOptions?: CLISubOptions;
@@ -21,11 +23,13 @@ export interface CLIOptionsCompare extends CLIOptionsTest {
   fileB: string;
 }
 
-export interface CLIOptionsSpecifcation extends CLISubOptions {
+export interface CLIOptionsSpecification extends CLISubOptions {
   root: string;
+  output: string;
+  extension: OAPIFormat;
   startLine: string;
 }
 
-export interface CLIOptionsMonitor extends CLIOptionsSpecifcation {}
+export type CLIOptionsMonitor = CLIOptionsSpecification
 
-export interface CLIOptionsGenerate extends CLIOptionsSpecifcation {}
+export type CLIOptionsGenerate = CLIOptionsSpecification

@@ -1,18 +1,19 @@
-import { CLIOptionsGenerate } from '../types';
+import { CLIOptionsGenerate } from "../types";
 import commandLineArgs from 'command-line-args';
+import { parseSpecCommandDefinition } from "./specification";
 
 export const parseGenerateCommandLineArgs = (argv: string[]): CLIOptionsGenerate => {
-  const parseCommandDefinitions = [
-    { name: 'help', alias: 'H', type: Boolean, defaultValue: false },
-    { name: 'root', defaultOption: true, defaultValue: process.cwd() },
-    { name: 'start', defaultValue: 'npm start' },
-  ];
+  const parseOptions = commandLineArgs(parseSpecCommandDefinition, { stopAtFirstUnknown: true, argv });
 
-  const parseOptions = commandLineArgs(parseCommandDefinitions, { stopAtFirstUnknown: true, argv });
+  if (!['json', 'yaml'].includes(parseOptions.ext)) {
+    throw new Error(`'${parseOptions.ext}' not supported. Available options: yaml, json`)
+  }
 
   return {
     help: parseOptions.help,
     root: parseOptions.root,
+    output: parseOptions.output,
+    extension: parseOptions.ext,
     startLine: parseOptions.start,
   };
 };
