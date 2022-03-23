@@ -1,12 +1,12 @@
-import { CLIOptionsGenerate } from "../types";
+import { CLIOptionsGenerate } from '../types';
 import commandLineArgs from 'command-line-args';
-import { parseSpecCommandDefinition } from "./specification";
+import { parseSpecCommandDefinition } from './specification';
 
 export const parseGenerateCommandLineArgs = (argv: string[]): CLIOptionsGenerate => {
   const parseOptions = commandLineArgs(parseSpecCommandDefinition, { stopAtFirstUnknown: true, argv });
 
   if (!['json', 'yaml'].includes(parseOptions.ext)) {
-    throw new Error(`'${parseOptions.ext}' not supported. Available options: yaml, json`)
+    throw new Error(`'${parseOptions.ext}' not supported. Available options: yaml, json`);
   }
 
   return {

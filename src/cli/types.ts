@@ -3,7 +3,7 @@
 export type CLIProgram = 'compare' | 'generate' | 'monitor' | 'test';
 export type CLICommand = CLIProgram | 'version' | 'help';
 
-export type OAPIFormat = 'json' | 'yaml'
+export type OAPIFormat = 'json' | 'yaml';
 
 export interface CLIOptions {
   command: CLICommand;
@@ -30,6 +30,6 @@ export interface CLIOptionsSpecification extends CLISubOptions {
   startLine: string;
 }
 
-export type CLIOptionsMonitor = CLIOptionsSpecification
+export type CLIOptionsMonitor = CLIOptionsSpecification;
 
-export type CLIOptionsGenerate = CLIOptionsSpecification
+export type CLIOptionsGenerate = CLIOptionsSpecification;
