@@ -56,7 +56,7 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
 
 export const writeSpecification = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
   const spec = await modelsToSpecification(projectRoot, models);
-  const filePath = path.resolve(projectRoot, 'openapi.json');
+  const filePath = path.resolve(projectRoot, 'expresso-openapi.json');
   await writeJSON(filePath, spec, {
     spaces: 4,
   });

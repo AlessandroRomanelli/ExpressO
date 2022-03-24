@@ -19,12 +19,8 @@ const cleanUp = async (basePath: string) => {
 };
 
 const convertSpecificationToYaml = async (specPath: string): Promise<void> => {
-  const { dir, name, ext } = path.parse(specPath);
-  if (ext !== '.json') {
-    throw new Error(`'${specPath}' was not in the expected format (JSON)`);
-  }
-  const spec = JSON.parse(await readFile(specPath, 'utf-8'));
-  await writeFile(path.resolve(dir, name + '.yaml'), YAML.stringify(spec));
+  const spec = JSON.parse(await readFile(path.resolve(specPath,  "expresso-openapi.json"), 'utf-8'));
+  await writeFile(path.resolve(specPath, 'expresso-openapi.yaml'), YAML.stringify(spec));
 };
 
 export const generateSpecification = async ({ root, startLine, output, extension }: CLIOptionsGenerate) => {
@@ -52,9 +48,11 @@ export const generateSpecification = async ({ root, startLine, output, extension
 
   try {
     if (extension === 'yaml') {
-      await convertSpecificationToYaml(path.resolve(replacedProjectPath, output + extension));
+      await convertSpecificationToYaml(replacedProjectPath);
     }
-    await move(path.resolve(replacedProjectPath, output + extension), path.resolve(root, output + extension), {
+    const srcName = "expresso-openapi." + extension
+    const destName = output + "." + extension
+    await move(path.resolve(replacedProjectPath, srcName), path.resolve(root, destName), {
       overwrite: true,
     });
   } catch (e) {
