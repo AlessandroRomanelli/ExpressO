@@ -19,7 +19,7 @@ const cleanUp = async (basePath: string) => {
 };
 
 const convertSpecificationToYaml = async (specPath: string): Promise<void> => {
-  const spec = JSON.parse(await readFile(path.resolve(specPath,  "expresso-openapi.json"), 'utf-8'));
+  const spec = JSON.parse(await readFile(path.resolve(specPath, 'expresso-openapi.json'), 'utf-8'));
   await writeFile(path.resolve(specPath, 'expresso-openapi.yaml'), YAML.stringify(spec));
 };
 
@@ -50,8 +50,8 @@ export const generateSpecification = async ({ root, startLine, output, extension
     if (extension === 'yaml') {
       await convertSpecificationToYaml(replacedProjectPath);
     }
-    const srcName = "expresso-openapi." + extension
-    const destName = output + "." + extension
+    const srcName = 'expresso-openapi.' + extension;
+    const destName = output + '.' + extension;
     await move(path.resolve(replacedProjectPath, srcName), path.resolve(root, destName), {
       overwrite: true,
     });

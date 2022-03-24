@@ -4,7 +4,7 @@ import { Method } from './Method';
 import { Request, Response } from 'express-serve-static-core';
 import http from 'http';
 import { OpenAPIV3 } from 'openapi-types';
-import { mineExpressResponses } from "../analyzer";
+import { mineExpressResponses } from '../analyzer';
 
 export type ExpressHandlerFunction = (req: Request | http.IncomingMessage, res: Response | http.ServerResponse) => any;
 
