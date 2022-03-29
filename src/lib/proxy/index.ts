@@ -6,11 +6,12 @@ const isHTTPMethod = (method: string): method is Method => {
   return HTTP_METHODS.includes(method as Method);
 };
 
+let opIndex = 0
 const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
   const routeHandlerEndpoint = (method: Method): ProxyHandler<ExpressHandlerFunction> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
-      app.add(new Endpoint(method, path, handlers));
+      app.add(new Endpoint(method, path, handlers, opIndex++));
       emitter.emit('api-update');
     },
   });

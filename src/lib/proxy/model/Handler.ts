@@ -43,6 +43,7 @@ export class Handler {
       const fullPath = `${basePath}${path}`;
       Object.assign(endpoints, this._routers[path].getEndpoints(fullPath));
     }
+
     return endpoints;
   }
 }

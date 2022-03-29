@@ -6,7 +6,7 @@ import http from 'http';
 import { OpenAPIV3 } from 'openapi-types';
 import { mineExpressResponses } from '../analyzer';
 
-export type ExpressHandlerFunction = (req: Request | http.IncomingMessage, res: Response | http.ServerResponse) => any;
+export type ExpressHandlerFunction = (req: Request, res: Response) => any;
 
 export class Endpoint {
   readonly method: Method;
@@ -14,18 +14,20 @@ export class Endpoint {
   readonly handlers: ExpressHandlerFunction[];
   readonly responses: OpenAPIV3.ResponsesObject = {};
   readonly params: OpenAPIV3.ParameterObject[] = [];
+  readonly index: number
 
-  constructor(method: Method, path: string, handlers: ExpressHandlerFunction[]) {
+  constructor(method: Method, path: string, handlers: ExpressHandlerFunction[], opIndex: number) {
     this.method = method;
     this.path = path;
     this.handlers = handlers;
-    // const [ responses, params ] = this.analyzeHandlers(handlers)
-    // this.responses = responses
-    // this.params = params
+    const [ responses, params ] = this.analyzeHandlers(handlers)
+    this.responses = responses
+    this.params = params
+    this.index = opIndex
   }
 
   getResponses(handler: ExpressHandlerFunction): OpenAPIV3.ResponsesObject {
-    return mineExpressResponses(handler.toString());
+    return mineExpressResponses(handler);
   }
 
   getParameters(handler: ExpressHandlerFunction): OpenAPIV3.ParameterObject[] {
@@ -38,7 +40,7 @@ export class Endpoint {
 
   analyzeHandlers(handlers: ExpressHandlerFunction[]): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {
     return handlers
-      .map(this.analyzeHandler)
+      .map((x) => this.analyzeHandler((x)))
       .reduce(
         ([prevResponses, prevParams], [responses, params]) => [
           Object.assign(prevResponses || {}, responses),
