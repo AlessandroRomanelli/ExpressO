@@ -66,6 +66,14 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
         recursive: true,
       },
     );
+    // Install the real 'express' within the work copy with a different name to avoid conflicts
+    await copy(
+      path.resolve(basePath, 'node_modules/express'),
+      path.resolve(basePath, '.expresso-runtime/node_modules/express-original'),
+      {
+        recursive: true,
+      },
+    );
     logger.info(`Created 'express' proxy within work copy`);
   } catch (e) {
     logger.err(e);

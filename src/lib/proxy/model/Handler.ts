@@ -1,4 +1,4 @@
-import express from 'express';
+import express from 'express-original';
 import { Endpoint } from './Endpoint';
 import { Method } from './Method';
 
