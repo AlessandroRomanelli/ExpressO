@@ -12,23 +12,3 @@ for (const k of Object.keys(real_express || {})) {
 
 module.exports.Router = Router;
 module.exports.expresso = expresso;
-
-export {
-  RouterOptions,
-  Application,
-  CookieOptions,
-  Errback,
-  ErrorRequestHandler,
-  Express,
-  Handler,
-  IRoute,
-  IRouter,
-  IRouterHandler,
-  IRouterMatcher,
-  MediaType,
-  NextFunction,
-  Request,
-  Response,
-  RequestHandler,
-  RequestParamHandler,
-} from 'express-original';
