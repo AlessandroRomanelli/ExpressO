@@ -1,4 +1,4 @@
-import express from "express-original";
+import express from 'express-original';
 import { Endpoint, ExpressHandler, ExpressHandlerFunction, Handler, HTTP_METHODS, Method, models } from './model';
 import { emitter } from './event';
 
