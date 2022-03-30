@@ -30,5 +30,5 @@ export {
   Request,
   Response,
   RequestHandler,
-  RequestParamHandler
+  RequestParamHandler,
 } from 'express-original';
