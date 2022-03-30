@@ -1,12 +1,12 @@
 #!/usr/local/bin ts-node
 
 import { Method } from './Method';
-import { Request, Response } from 'express-serve-static-core';
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import http from 'http';
 import { OpenAPIV3 } from 'openapi-types';
 import { mineExpressResponses } from '../analyzer';
 
-export type ExpressHandlerFunction = (req: Request, res: Response) => any;
+export type ExpressHandlerFunction = (req: Request, res: Response, next?: NextFunction) => any;
 
 export class Endpoint {
   readonly method: Method;

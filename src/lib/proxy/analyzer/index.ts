@@ -1,9 +1,10 @@
 import { OpenAPIV3 } from 'openapi-types';
-import { parse, find, walk, traverse } from 'abstract-syntax-tree';
+import { parse, find, walk, traverse, remove } from 'abstract-syntax-tree';
 import { getReasonPhrase } from 'http-status-codes';
 import logger from 'jet-logger';
 import { ExpressHandlerFunction } from "../model";
 import http2 from "http2";
+import _ from "lodash"
 
 const EXPRESS_TERMINATORS = [
   "send",
@@ -17,13 +18,75 @@ const EXPRESS_TERMINATORS = [
   "sendStatus"
 ]
 
-const getStatusCode = (terminator: any): number | undefined => {
+abstract class ResponseStatus {
+  readonly response: string
+  protected constructor(response: string) {
+    this.response = response
+  }
+
+  abstract toSpecification(): OpenAPIV3.ResponsesObject
+}
+
+class ResponseStatusLiteral extends  ResponseStatus {
+  readonly statusCode: number
+  constructor(statusCode: number) {
+    super(statusCode.toString());
+    this.statusCode = statusCode
+  }
+
+  toSpecification(): OpenAPIV3.ResponsesObject {
+    return {
+      [this.response]: {
+        description: getReasonPhrase(this.statusCode)
+      }
+    }
+  }
+}
+
+class ResponseStatusIdentifier extends ResponseStatus {
+  readonly node: any
+  readonly path: string = ""
+  constructor(node: any) {
+    super(ResponseStatusIdentifier.getName(node));
+    this.node = node
+    this.path = ResponseStatusIdentifier.getPath(node)
+  }
+
+  static getName(node: any): string {
+    if (node.type === "Identifier") return node.name
+    return _.last(find(node, 'Identifier').map((x: any) => x.name)) || "UNKNOWN"
+  }
+
+  static getPath(node: any): string {
+    if (node.type === "Identifier") return ""
+    return find(node, "Identifier").map((x: any) => x.name).slice(0, -1).join(".")
+  }
+
+  toSpecification(): OpenAPIV3.ResponsesObject {
+    if (!this.path) {
+      return {
+        [`x-${this.response}`]: {
+          description: ""
+        }
+      }
+    }
+    return {
+      [`x-${this.response}`]: ({
+        description: "",
+        ["x-path"]: this.path
+      }) as OpenAPIV3.ResponseObject
+    };
+  }
+}
+
+
+const getStatusCode = (terminator: any): ResponseStatus | undefined => {
   switch (terminator.callee.property.name) {
     case "redirect": {
       if (terminator.arguments.length > 1) {
         return mineNodeForResponse(terminator.arguments[0])
       }
-      return 302
+      return new ResponseStatusLiteral(302)
     }
     case "sendStatus": {
       try {
@@ -33,32 +96,34 @@ const getStatusCode = (terminator: any): number | undefined => {
         return
       }
     }
-    default: return 200
+    default: return new ResponseStatusLiteral(200)
   }
 }
 
-const mineNodeForResponse = (node: any): number => {
+const mineNodeForResponse = (node: any): ResponseStatus => {
   switch (node.type) {
-    case "Literal": return node.value
-    case "Identifier": return node.name
-    default: return node.toString()
+    case "Literal": return new ResponseStatusLiteral(node.value)
+    case "MemberExpression": return new ResponseStatusIdentifier(node)
+    case "Identifier": return new ResponseStatusIdentifier(node)
+    default: return new ResponseStatusIdentifier(node)
   }
 };
 
-const mineStatementForResponse = (statement: any, resName: string): number | undefined => {
-  const [response] = find(statement,
-    `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'][arguments] > *:not(MemberExpression), ` +
-    `AssignmentExpression[left.object.name='res'] > *:not(MemberExpression)`).slice(-1)
+const mineStatementForResponse = (statement: any, resName: string): ResponseStatus | undefined => {
+  const response = _.last(find(statement,
+    `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'] > *:last-child, ` +
+    `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`))
   return mineNodeForResponse(response)
 }
 
-const mineBlockForResponses = (block: any, resName: string): number | undefined => {
-  const [lastStatement] = find(block,
+const mineBlockForResponses = (block: any, resName: string): ResponseStatus | undefined => {
+  remove(block, 'IfStatement,SwitchStatement')
+  const lastStatement = _.last(find(block,
     `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-    `AssignmentExpression[left.object.name=${resName}]`).slice(-1)
+    `AssignmentExpression[left.object.name=${resName}]`))
   if (!lastStatement) {
-    const [firstTerminator] = find(block, `CallExpression[callee.property.name=/${EXPRESS_TERMINATORS.join("|")}/]`)
-    return getStatusCode(firstTerminator)
+    const terminator = _.first(find(block, `CallExpression[callee.property.name=/${EXPRESS_TERMINATORS.join("|")}/]`))
+    return getStatusCode(terminator)
   }
   return mineStatementForResponse(lastStatement, resName)
 }
@@ -74,40 +139,17 @@ export const mineExpressResponses = (fnBody: ExpressHandlerFunction): OpenAPIV3.
   }
   const [, { name: resName }] = fn.params;
 
-  // let depth = 0
-  // traverse(fn, {
-  //   enter(node: any) {
-  //     console.log(`${'  '.repeat(depth)}${node.type}`)
-  //     depth += 1
-  //   },
-  //   leave(node: any) {
-  //     depth -= 1
-  //   }
-  // })
-
-  const responses: number[] = find(fn, `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join("|")}/])`)
+  const responses: ResponseStatus[] = find(fn,
+    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join("|")}/])`)
     .flatMap((x: any) => mineBlockForResponses(x, resName))
     .filter((x: any) => x)
 
-  return Object.fromEntries(responses.map(x => [x, { description: getReasonPhrase(x) }]));
+  return responses.map(x => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {})
 };
 
-console.log(mineExpressResponses((req, res) => {
-  res.statusCode = 500
-  if ("something".length) {
-    res.redirect("asgheno")
-  }
-  res.statusCode = 500
-  if ("something_else".length) {
-    res.sendStatus(404)
-  }
-  if ("something_else_still".length) {
-    res.redirect(301, "something")
-  }
-  if ("something_else_entirely".length) {
-    res.json(JSON.stringify({}))
-  }
-  res.status(401).status(402).status(403).status(201);
-  res.statusCode = 202
-  res.end()
-}))
+// console.log(mineExpressResponses((req, res) => {
+//   if ("someCondition".length) {
+//     res.status(404).send('error')
+//   }
+//   res.send('respond with a resource');
+// }))
