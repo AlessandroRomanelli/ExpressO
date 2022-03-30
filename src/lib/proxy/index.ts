@@ -6,7 +6,7 @@ const isHTTPMethod = (method: string): method is Method => {
   return HTTP_METHODS.includes(method as Method);
 };
 
-let opIndex = 0
+let opIndex = 0;
 const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
   const routeHandlerEndpoint = (method: Method): ProxyHandler<ExpressHandlerFunction> => ({
     apply: (target, thisArg, argArray) => {

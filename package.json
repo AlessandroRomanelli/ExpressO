@@ -1,6 +1,6 @@
 {
   "name": "expresso-api",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "bin": {
