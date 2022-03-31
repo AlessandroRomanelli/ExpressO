@@ -2,9 +2,8 @@ import { OpenAPIV3 } from 'openapi-types';
 import { parse, find, walk, traverse, remove } from 'abstract-syntax-tree';
 import { getReasonPhrase } from 'http-status-codes';
 import logger from 'jet-logger';
-import { ExpressHandlerFunction } from '../model';
-import http2 from 'http2';
 import _ from 'lodash';
+import { RequestHandler } from "express";
 
 const EXPRESS_TERMINATORS = [
   'send',
@@ -82,7 +81,7 @@ class ResponseStatusIdentifier extends ResponseStatus {
   }
 }
 
-const getStatusCode = (terminator: any): ResponseStatus | undefined => {
+const getStatusCodeForTerminator = (terminator: any): ResponseStatus => {
   switch (terminator.callee.property.name) {
     case 'redirect': {
       if (terminator.arguments.length > 1) {
@@ -91,12 +90,7 @@ const getStatusCode = (terminator: any): ResponseStatus | undefined => {
       return new ResponseStatusLiteral(302);
     }
     case 'sendStatus': {
-      try {
-        return mineNodeForResponse(terminator.arguments[0]);
-      } catch (e) {
-        logger.warn('sendStatus had no status code specified');
-        return;
-      }
+      return mineNodeForResponse(terminator.arguments[0]);
     }
     default:
       return new ResponseStatusLiteral(200);
@@ -121,34 +115,46 @@ const mineStatementForResponse = (statement: any, resName: string): ResponseStat
     find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'] > *:last-child, ` +
-        `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
+      `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
     ),
   );
-  return mineNodeForResponse(response);
+  if (response) return mineNodeForResponse(response);
+  const terminator = _.first(find(statement, `CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`));
+  if (terminator) return getStatusCodeForTerminator(terminator);
 };
 
-const mineBlockForResponses = (block: any, resName: string): ResponseStatus | undefined => {
-  remove(block, 'IfStatement,SwitchStatement');
+const mineBlockForResponses = (block: any, resName: string): ResponseStatus[] => {
+  remove(block, 'IfStatement BlockStatement,SwitchStatement');
+  const statements = find(block,
+    `IfStatement ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])`+
+    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join("|")}/])`)
   const lastStatement = _.last(
     find(
       block,
       `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-        `AssignmentExpression[left.object.name=${resName}]`,
+      `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
+      `AssignmentExpression[left.object.name=${resName}]`,
     ),
   );
-  if (!lastStatement) {
-    const terminator = _.first(find(block, `CallExpression[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`));
-    return getStatusCode(terminator);
+  if (lastStatement) {
+    statements.push(lastStatement)
+  } else {
+    const lastStatement = _.last(
+      find(
+        block,
+        `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]), ` +
+        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`
+      ),
+    );
+    if (lastStatement) statements.push(lastStatement)
   }
-  return mineStatementForResponse(lastStatement, resName);
+
+  return statements.map((x: any) => mineStatementForResponse(x, resName));
 };
 
-export const mineExpressResponses = (fnBody: ExpressHandlerFunction): OpenAPIV3.ResponsesObject => {
+export const mineExpressResponses = (fnBody: RequestHandler): OpenAPIV3.ResponsesObject => {
   const tree = parse('const __expresso_fn = ' + (fnBody.toString() || '0'));
   const [fn] = find(tree, '*:function');
-  if (!fn) {
-    throw new Error('Could not find handler definition in the given source code');
-  }
   if (fn.params.length < 2) {
     throw new Error('Handler had less than two args');
   }
@@ -156,16 +162,15 @@ export const mineExpressResponses = (fnBody: ExpressHandlerFunction): OpenAPIV3.
 
   const responses: ResponseStatus[] = find(
     fn,
-    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
-      '|',
-    )}/])`,
+    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])`+
+    `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
   )
     .flatMap((x: any) => mineBlockForResponses(x, resName))
     .filter((x: any) => x);
 
   return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});
 };
-
+//
 // console.log(mineExpressResponses((req, res) => {
 //   if ("someCondition".length) {
 //     res.status(404).send('error')

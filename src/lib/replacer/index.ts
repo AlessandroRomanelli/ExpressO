@@ -68,8 +68,11 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     );
     // Install the 'express' types within as types for 'expresso-api'
     await copy(
-      path.resolve(basePath, 'node_modules/@types/express'),
-      path.resolve(basePath, '.expresso-runtime/node_modules/@types/express'),
+      path.resolve(basePath, 'node_modules/@types/express/index.d.ts'),
+      path.resolve(basePath, '.expresso-runtime/node_modules/express/dist/lib/index.d.ts'),
+      {
+        overwrite: true
+      }
     );
     // Install the real 'express' within the work copy with a different name to avoid conflicts
     await copy(

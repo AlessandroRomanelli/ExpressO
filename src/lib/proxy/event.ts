@@ -16,7 +16,7 @@ const delayFn = (fn: () => void, delayMs: number) => {
   };
 };
 
-const delayedWriteSpecification = delayFn(() => writeSpecification(process.cwd(), models), 2500);
+const delayedWriteSpecification = delayFn(() => writeSpecification(process.cwd(), models), 8000);
 
 emitter.on('api-update', async () => {
   delayedWriteSpecification();

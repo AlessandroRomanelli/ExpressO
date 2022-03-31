@@ -1,6 +1,7 @@
 import express from 'express-original';
-import { Endpoint, ExpressHandler, ExpressHandlerFunction, Handler, HTTP_METHODS, Method, models } from './model';
+import { Endpoint, ExpressHandler, Handler, HTTP_METHODS, Method, models } from './model';
 import { emitter } from './event';
+import { RequestHandler } from "express";
 
 const isHTTPMethod = (method: string): method is Method => {
   return HTTP_METHODS.includes(method as Method);
@@ -8,15 +9,15 @@ const isHTTPMethod = (method: string): method is Method => {
 
 let opIndex = 0;
 const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
-  const routeHandlerEndpoint = (method: Method): ProxyHandler<ExpressHandlerFunction> => ({
+  const routeHandlerEndpoint = (method: Method): ProxyHandler<RequestHandler> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
-      app.add(new Endpoint(method, path, handlers, opIndex++));
+      app.add(new Endpoint(method, path, handlers.flatMap(x => x), opIndex++));
       emitter.emit('api-update');
     },
   });
 
-  const routeHandlerMount: ProxyHandler<ExpressHandlerFunction> = {
+  const routeHandlerMount: ProxyHandler<RequestHandler> = {
     apply: (target, thisArg, argArray) => {
       if (argArray.length < 2) return;
       const [path, ...[router]] = argArray as [string, ...express.IRouter[]];

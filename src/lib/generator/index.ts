@@ -36,6 +36,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
     timeout: 5000,
   };
 
+  logger.info("Starting work copy...")
   try {
     const { stdout, stderr } = await exec(startLine, execOptions);
     logger.info(`Command '${startLine}' executed. Output:`);

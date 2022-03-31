@@ -101,7 +101,7 @@ describe('Analyzer [Responses]', () => {
 
     it("should detect the implicit code of 'json' method", () => {
         const responses = Object.keys(mineExpressResponses(function(req, res, next) {
-            res.json({})
+            res.json([])
         }))
         expect(responses.length).toBe(1)
         expect(responses).toContain('200')
@@ -162,6 +162,33 @@ describe('Analyzer [Responses]', () => {
         }))
         expect(responses.length).toBe(1)
         expect(responses).toContain('x-HTTP_STATUS_ACCEPTED')
+    })
+
+    it("should handle inline returns", () => {
+        const responses = Object.keys(mineExpressResponses(async (req, res, next) => {
+            if ("true".length) return res.status(404).end()
+            if ("true".length) return res.redirect("somewhere_else")
+            return res.status(500).json([]);
+        }))
+        expect(responses.length).toBe(3)
+        expect(responses).toContain('500')
+        expect(responses).toContain('302')
+        expect(responses).toContain('404')
+    })
+
+    it("should handle await in functions", () => {
+        function delay(ms: number) {
+            return new Promise(resolve => {
+                setTimeout(resolve, ms);
+            });
+        }
+
+        const responses = Object.keys(mineExpressResponses(async (req, res, next) => {
+            await delay(1000)
+            res.json([])
+        }))
+        expect(responses.length).toBe(1)
+        expect(responses).toContain('200')
     })
 
 });
