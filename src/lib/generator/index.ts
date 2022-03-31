@@ -3,12 +3,12 @@ import util from 'util';
 import logger from 'jet-logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
-import { move, readFile, readJSON, remove, writeFile } from "fs-extra";
+import { move, readFile, readJSON, remove, writeFile } from 'fs-extra';
 import { CLIOptionsGenerate } from '../../cli/types';
 import YAML from 'json2yaml';
-import { Handler, HandlerJSON } from "../proxy/model";
-import { writeSpecification } from "../proxy/writer";
-import waitOn from "wait-on"
+import { Handler, HandlerJSON } from '../proxy/model';
+import { writeSpecification } from '../proxy/writer';
+import waitOn from 'wait-on';
 
 const exec = util.promisify(syncExec);
 
@@ -41,7 +41,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
   };
 
   // Launch the work copy with the replaced modules
-  logger.info("Starting work copy...")
+  logger.info('Starting work copy...');
   try {
     const { stdout, stderr } = await exec(startLine, execOptions);
     logger.info(`Command '${startLine}' executed. Output:`);
@@ -54,28 +54,28 @@ export const generateSpecification = async ({ root, startLine, output, extension
 
   try {
     await waitOn({
-      resources: [ path.resolve(root, 'expresso-models.json') ],
-      timeout: 10000
-    })
+      resources: [path.resolve(root, 'expresso-models.json')],
+      timeout: 10000,
+    });
   } catch (e) {
-    logger.err(e)
-    return cleanUp(root)
+    logger.err(e);
+    return cleanUp(root);
   }
 
   // Read the models file and perform the analysis
   try {
     const models = new Set(
-      (await readJSON(
-        path.resolve(root, 'expresso-models.json'), 'utf-8') as HandlerJSON[]
-      ).map(x => Handler.fromJSON(x))
-    )
-    await remove(path.resolve(root, 'expresso-models.json'))
-    await writeSpecification(replacedProjectPath, models)
+      ((await readJSON(path.resolve(root, 'expresso-models.json'), 'utf-8')) as HandlerJSON[]).map((x) =>
+        Handler.fromJSON(x),
+      ),
+    );
+    await remove(path.resolve(root, 'expresso-models.json'));
+    await writeSpecification(replacedProjectPath, models);
   } catch (e) {
-    logger.err("Unable to read the models extracted from the work copy. Aborting...")
-    logger.err(e)
-    logger.err(e.stack)
-    return cleanUp(root)
+    logger.err('Unable to read the models extracted from the work copy. Aborting...');
+    logger.err(e);
+    logger.err(e.stack);
+    return cleanUp(root);
   }
 
   // Convert to YAML if requested

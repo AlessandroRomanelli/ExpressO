@@ -66,8 +66,8 @@ export const writeSpecification = async (projectRoot = '.', models: Set<Handler>
 export const writeModels = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
   const filePath = path.resolve(projectRoot, '..', 'expresso-models.json');
   try {
-    await writeJSON(filePath, Array.from(models))
+    await writeJSON(filePath, Array.from(models));
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
-}
+};

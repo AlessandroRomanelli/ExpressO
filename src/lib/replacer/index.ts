@@ -54,7 +54,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     await copy(basePath, path.resolve(basePath, '../.expresso-runtime'), {
       recursive: true,
       filter: (src) => !src.includes('node_modules'),
-      overwrite: true
+      overwrite: true,
     });
     // Move it within the original folder
     await move(path.resolve(basePath, '../.expresso-runtime'), path.resolve(basePath, '.expresso-runtime'));
@@ -72,8 +72,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       path.resolve(basePath, 'node_modules/@types/express/index.d.ts'),
       path.resolve(basePath, '.expresso-runtime/node_modules/express/dist/lib/index.d.ts'),
       {
-        overwrite: true
-      }
+        overwrite: true,
+      },
     );
     // Install the real 'express' within the work copy with a different name to avoid conflicts
     await copy(

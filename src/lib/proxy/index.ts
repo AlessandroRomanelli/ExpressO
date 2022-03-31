@@ -1,7 +1,7 @@
 import express from 'express-original';
 import { Endpoint, ExpressHandler, Handler, HTTP_METHODS, Method, models } from './model';
 import { emitter } from './event';
-import { RequestHandler } from "express";
+import { RequestHandler } from 'express';
 
 const isHTTPMethod = (method: string): method is Method => {
   return HTTP_METHODS.includes(method as Method);
@@ -12,7 +12,14 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
   const routeHandlerEndpoint = (method: Method): ProxyHandler<RequestHandler> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
-      app.add(new Endpoint(method, path, handlers.flatMap(x => x).map(x => x.toString()), opIndex++));
+      app.add(
+        new Endpoint(
+          method,
+          path,
+          handlers.flatMap((x) => x).map((x) => x.toString()),
+          opIndex++,
+        ),
+      );
       emitter.emit('api-update');
     },
   });

@@ -35,12 +35,12 @@ export class Endpoint {
   }
 
   analyzeHandler(handler: string): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {
-    console.log(handler, this.getResponses(handler))
+    console.log(handler, this.getResponses(handler));
     return [this.getResponses(handler), this.getParameters(handler)];
   }
 
   analyzeHandlers() {
-    const [responses, params] =  this.handlers
+    const [responses, params] = this.handlers
       .map((x) => this.analyzeHandler(x))
       .reduce(
         ([prevResponses, prevParams], [responses, params]) => [
@@ -49,13 +49,13 @@ export class Endpoint {
         ],
         [{}, []],
       );
-    this.responses = responses
-    this.params = params
+    this.responses = responses;
+    this.params = params;
   }
 
   static fromJSON(obj: EndpointJSON): Endpoint {
-    const endpoint =  new Endpoint(obj.method, obj.path, obj.handlers, obj.index)
-    endpoint.analyzeHandlers()
-    return endpoint
+    const endpoint = new Endpoint(obj.method, obj.path, obj.handlers, obj.index);
+    endpoint.analyzeHandlers();
+    return endpoint;
   }
 }

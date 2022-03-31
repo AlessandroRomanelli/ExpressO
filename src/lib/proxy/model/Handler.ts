@@ -1,11 +1,11 @@
 import express from 'express-original';
-import { Endpoint, EndpointJSON } from "./Endpoint";
+import { Endpoint, EndpointJSON } from './Endpoint';
 import { Method } from './Method';
 
 export interface HandlerJSON {
   _instance: ExpressHandler;
-  _endpoints: { [k1: string]: { [k2 in Method]: EndpointJSON } }
-  _routers: { [key: string]: HandlerJSON }
+  _endpoints: { [k1: string]: { [k2 in Method]: EndpointJSON } };
+  _routers: { [key: string]: HandlerJSON };
 }
 
 export type ExpressHandler = express.Express | express.Application | express.Router;
@@ -54,14 +54,11 @@ export class Handler {
   }
 
   static fromJSON(obj: HandlerJSON): Handler {
-    const handler =  new Handler(obj._instance)
-    const endpoints = Object.values(obj._endpoints)
-      .flatMap(x => Object.values(x)
-        .map(x => Endpoint.fromJSON(x)))
-    endpoints.forEach(x => handler.add(x))
-    const handlers = Object.entries(obj._routers)
-      .map(([path, x]) => [path, Handler.fromJSON(x)] as [string, Handler])
-    handlers.forEach(([path, x]) => handler.mount(path, x))
-    return handler
+    const handler = new Handler(obj._instance);
+    const endpoints = Object.values(obj._endpoints).flatMap((x) => Object.values(x).map((x) => Endpoint.fromJSON(x)));
+    endpoints.forEach((x) => handler.add(x));
+    const handlers = Object.entries(obj._routers).map(([path, x]) => [path, Handler.fromJSON(x)] as [string, Handler]);
+    handlers.forEach(([path, x]) => handler.mount(path, x));
+    return handler;
   }
 }

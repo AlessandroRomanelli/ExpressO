@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { models } from './model';
-import { writeModels } from "./writer";
+import { writeModels } from './writer';
 
 class OAPIEmitter extends EventEmitter {}
 

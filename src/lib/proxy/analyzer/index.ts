@@ -3,7 +3,7 @@ import { parse, find, walk, traverse, remove } from 'abstract-syntax-tree';
 import { getReasonPhrase } from 'http-status-codes';
 import logger from 'jet-logger';
 import _ from 'lodash';
-import { RequestHandler } from "express";
+import { RequestHandler } from 'express';
 
 const EXPRESS_TERMINATORS = [
   'send',
@@ -115,38 +115,49 @@ const mineStatementForResponse = (statement: any, resName: string): ResponseStat
     find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'] > *:last-child, ` +
-      `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
+        `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
     ),
   );
   if (response) return mineNodeForResponse(response);
-  const terminator = _.first(find(statement, `CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`));
+  const terminator = _.first(
+    find(
+      statement,
+      `CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`,
+    ),
+  );
   if (terminator) return getStatusCodeForTerminator(terminator);
 };
 
 const mineBlockForResponses = (block: any, resName: string): ResponseStatus[] => {
   remove(block, 'IfStatement BlockStatement,SwitchStatement');
-  const statements = find(block,
-    `IfStatement ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])`+
-    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join("|")}/])`)
+  const statements = find(
+    block,
+    `IfStatement ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
+      `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`,
+  );
   const lastStatement = _.last(
     find(
       block,
       `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-      `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-      `AssignmentExpression[left.object.name=${resName}]`,
+        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
+        `AssignmentExpression[left.object.name=${resName}]`,
     ),
   );
   if (lastStatement) {
-    statements.push(lastStatement)
+    statements.push(lastStatement);
   } else {
     const lastStatement = _.last(
       find(
         block,
-        `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]), ` +
-        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`
+        `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
+          '|',
+        )}/]), ` +
+          `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
+            '|',
+          )}/])`,
       ),
     );
-    if (lastStatement) statements.push(lastStatement)
+    if (lastStatement) statements.push(lastStatement);
   }
 
   return statements.map((x: any) => mineStatementForResponse(x, resName));
@@ -162,13 +173,11 @@ export const mineExpressResponses = (fnBody: string): OpenAPIV3.ResponsesObject 
 
   const responses: ResponseStatus[] = find(
     fn,
-    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])`+
-    `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
+    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
+      `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
   )
     .flatMap((x: any) => mineBlockForResponses(x, resName))
     .filter((x: any) => x);
 
-  return responses
-    .map((x) => x.toSpecification())
-    .reduce((prev, curr) => Object.assign(prev, curr), {});
+  return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});
 };
