@@ -54,6 +54,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     await copy(basePath, path.resolve(basePath, '../.expresso-runtime'), {
       recursive: true,
       filter: (src) => !src.includes('node_modules'),
+      overwrite: true
     });
     // Move it within the original folder
     await move(path.resolve(basePath, '../.expresso-runtime'), path.resolve(basePath, '.expresso-runtime'));

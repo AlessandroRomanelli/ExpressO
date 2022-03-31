@@ -90,7 +90,8 @@
     "numeral": "^2.0.6",
     "replace-in-file": "^6.3.2",
     "swagger2openapi": "^7.0.8",
-    "table": "^6.8.0"
+    "table": "^6.8.0",
+    "wait-on": "^6.0.1"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.2.0",
@@ -107,6 +108,7 @@
     "@types/node-fetch": "^2.6.1",
     "@types/numeral": "^2.0.2",
     "@types/supertest": "^2.0.11",
+    "@types/wait-on": "^5.3.1",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
     "eslint": "^8.10.0",

@@ -152,8 +152,8 @@ const mineBlockForResponses = (block: any, resName: string): ResponseStatus[] =>
   return statements.map((x: any) => mineStatementForResponse(x, resName));
 };
 
-export const mineExpressResponses = (fnBody: RequestHandler): OpenAPIV3.ResponsesObject => {
-  const tree = parse('const __expresso_fn = ' + (fnBody.toString() || '0'));
+export const mineExpressResponses = (fnBody: string): OpenAPIV3.ResponsesObject => {
+  const tree = parse('const __expresso_fn = ' + (fnBody || '0'));
   const [fn] = find(tree, '*:function');
   if (fn.params.length < 2) {
     throw new Error('Handler had less than two args');
@@ -168,12 +168,7 @@ export const mineExpressResponses = (fnBody: RequestHandler): OpenAPIV3.Response
     .flatMap((x: any) => mineBlockForResponses(x, resName))
     .filter((x: any) => x);
 
-  return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});
+  return responses
+    .map((x) => x.toSpecification())
+    .reduce((prev, curr) => Object.assign(prev, curr), {});
 };
-//
-// console.log(mineExpressResponses((req, res) => {
-//   if ("someCondition".length) {
-//     res.status(404).send('error')
-//   }
-//   res.send('respond with a resource');
-// }))

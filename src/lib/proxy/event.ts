@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { models } from './model';
-import { writeSpecification } from './writer';
+import { writeModels } from "./writer";
 
 class OAPIEmitter extends EventEmitter {}
 
@@ -16,8 +16,8 @@ const delayFn = (fn: () => void, delayMs: number) => {
   };
 };
 
-const delayedWriteSpecification = delayFn(() => writeSpecification(process.cwd(), models), 8000);
+const delayedWriteModels = delayFn(() => writeModels(process.cwd(), models), 500);
 
 emitter.on('api-update', async () => {
-  delayedWriteSpecification();
+  delayedWriteModels();
 });

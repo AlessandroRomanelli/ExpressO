@@ -3,9 +3,12 @@ import util from 'util';
 import logger from 'jet-logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
-import { move, readFile, remove, writeFile } from 'fs-extra';
+import { move, readFile, readJSON, remove, writeFile } from "fs-extra";
 import { CLIOptionsGenerate } from '../../cli/types';
 import YAML from 'json2yaml';
+import { Handler, HandlerJSON } from "../proxy/model";
+import { writeSpecification } from "../proxy/writer";
+import waitOn from "wait-on"
 
 const exec = util.promisify(syncExec);
 
@@ -25,6 +28,7 @@ const convertSpecificationToYaml = async (specPath: string): Promise<void> => {
 
 export const generateSpecification = async ({ root, startLine, output, extension }: CLIOptionsGenerate) => {
   logger.info(`Generating OpenAPI specification for project with root at '${root}'`);
+  // Replace the 'express' module with our own proxy
   if (!(await replaceExpress(root))) {
     logger.err('Failed to replace express module');
     return cleanUp(root);
@@ -33,26 +37,55 @@ export const generateSpecification = async ({ root, startLine, output, extension
 
   const execOptions: ExecOptions = {
     cwd: replacedProjectPath,
-    timeout: 5000,
+    timeout: 10000,
   };
 
+  // Launch the work copy with the replaced modules
   logger.info("Starting work copy...")
   try {
     const { stdout, stderr } = await exec(startLine, execOptions);
     logger.info(`Command '${startLine}' executed. Output:`);
     if (stdout) logger.info(stdout);
-    if (stderr) logger.err(stderr);
+    if (stderr) logger.warn(stderr);
   } catch (e) {
-    logger.err(`Command '${startLine}' failed:`);
-    logger.err(e);
+    logger.info(`Command '${startLine}' executed. Output:`);
+    logger.warn(e);
   }
 
+  try {
+    await waitOn({
+      resources: [ path.resolve(root, 'expresso-models.json') ],
+      timeout: 10000
+    })
+  } catch (e) {
+    logger.err(e)
+    return cleanUp(root)
+  }
+
+  // Read the models file and perform the analysis
+  try {
+    const models = new Set(
+      (await readJSON(
+        path.resolve(root, 'expresso-models.json'), 'utf-8') as HandlerJSON[]
+      ).map(x => Handler.fromJSON(x))
+    )
+    await remove(path.resolve(root, 'expresso-models.json'))
+    await writeSpecification(replacedProjectPath, models)
+  } catch (e) {
+    logger.err("Unable to read the models extracted from the work copy. Aborting...")
+    logger.err(e)
+    logger.err(e.stack)
+    return cleanUp(root)
+  }
+
+  // Convert to YAML if requested
   try {
     if (extension === 'yaml') {
       await convertSpecificationToYaml(replacedProjectPath);
     }
     const srcName = 'expresso-openapi.' + extension;
     const destName = output + '.' + extension;
+    // Move the output file to the target directory
     await move(path.resolve(replacedProjectPath, srcName), path.resolve(root, destName), {
       overwrite: true,
     });

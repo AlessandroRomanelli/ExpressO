@@ -61,6 +61,13 @@ export const writeSpecification = async (projectRoot = '.', models: Set<Handler>
     spaces: 4,
   });
   logger.info(`OpenAPI specification successfully generated at '${filePath}'`);
-  logger.info('Aborting process...');
-  process.exit();
 };
+
+export const writeModels = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
+  const filePath = path.resolve(projectRoot, '..', 'expresso-models.json');
+  try {
+    await writeJSON(filePath, Array.from(models))
+  } catch (e) {
+    console.error(e)
+  }
+}
