@@ -1,6 +1,7 @@
 import express from 'express-original';
 import { Endpoint, EndpointJSON } from './Endpoint';
 import { Method } from './Method';
+import path from 'path'
 
 export interface HandlerJSON {
   _instance: ExpressHandler;
@@ -41,13 +42,13 @@ export class Handler {
   // TODO: Add sorting depending on operation order
   getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
-    for (const path of Object.keys(this._endpoints)) {
-      const fullPath = `${basePath}${path}`;
-      endpoints[fullPath] = this._endpoints[path];
+    for (const p of Object.keys(this._endpoints)) {
+      const fullPath = path.normalize(`${basePath}${p}`);
+      endpoints[fullPath] = this._endpoints[p];
     }
-    for (const path of Object.keys(this._routers)) {
-      const fullPath = `${basePath}${path}`;
-      Object.assign(endpoints, this._routers[path].getEndpoints(fullPath));
+    for (const p of Object.keys(this._routers)) {
+      const fullPath = path.normalize(`${basePath}${p}`);
+      Object.assign(endpoints, this._routers[p].getEndpoints(fullPath));
     }
 
     return endpoints;

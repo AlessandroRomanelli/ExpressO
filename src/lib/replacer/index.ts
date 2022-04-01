@@ -2,6 +2,11 @@ import path from 'path';
 import { stat, move, copy, remove, readFile } from 'fs-extra';
 import logger from 'jet-logger';
 import filesize from 'filesize';
+import { exec as syncExec } from 'child_process';
+import util from "util";
+
+const exec = util.promisify(syncExec);
+
 
 /**
  * Function to create a working copy of the project at basePath substituting express
@@ -32,20 +37,6 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     logger.err(e);
   }
 
-  // Ensure that expresso-api is installed locally
-  try {
-    const pkg = JSON.parse(await readFile(path.resolve(basePath, 'package.json'), 'utf-8'));
-    if (!Object.keys(pkg.dependencies).includes('expresso-api')) {
-      logger.err(
-        "'expresso-api' is not present in the package.json, please install the package locally with:\n'npm install expresso-api'",
-      );
-      return false;
-    }
-  } catch (e) {
-    logger.err(`Could not find package.json file within '${basePath}'`);
-    return false;
-  }
-
   try {
     const { size } = await stat(basePath);
     logger.info(`Creating work copy for ${basePath} (${filesize(size)})`);
@@ -59,22 +50,32 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     // Move it within the original folder
     await move(path.resolve(basePath, '../.expresso-runtime'), path.resolve(basePath, '.expresso-runtime'));
     logger.info(`Created folder '.expresso-runtime' work copy`);
-    // Install the 'expresso-api' as 'express' within the work copy
+
+    const { stdout } = await exec("npm list -g | head -1")
+    const npmLibFolder = stdout.trim()
+
+    // Install the global 'expresso-api' as local 'express' within the work copy
     await copy(
-      path.resolve(basePath, 'node_modules/expresso-api'),
+      path.resolve(npmLibFolder, 'node_modules/expresso-api'),
       path.resolve(basePath, '.expresso-runtime/node_modules/express'),
       {
-        recursive: true,
-      },
-    );
-    // Install the 'express' types within as types for 'expresso-api'
-    await copy(
-      path.resolve(basePath, 'node_modules/@types/express/index.d.ts'),
-      path.resolve(basePath, '.expresso-runtime/node_modules/express/dist/lib/index.d.ts'),
-      {
-        overwrite: true,
-      },
-    );
+        recursive: true
+      }
+    )
+
+    try {
+      // Install the 'express' types within as types for 'expresso-api'
+      await copy(
+        path.resolve(basePath, 'node_modules/@types/express/index.d.ts'),
+        path.resolve(basePath, '.expresso-runtime/node_modules/express/dist/lib/index.d.ts'),
+        {
+          overwrite: true,
+        },
+      );
+    } catch (e) {
+      logger.warn("Could not find any 'express' types installed")
+    }
+
     // Install the real 'express' within the work copy with a different name to avoid conflicts
     await copy(
       path.resolve(basePath, 'node_modules/express'),
@@ -84,6 +85,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       },
     );
     logger.info(`Created 'express' proxy within work copy`);
+
   } catch (e) {
     logger.err(e);
     logger.err(`Failed to replace 'express' in folder '${path.resolve(basePath, '.expresso-runtime')}'`);

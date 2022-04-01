@@ -35,7 +35,6 @@ export class Endpoint {
   }
 
   analyzeHandler(handler: string): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {
-    console.log(handler, this.getResponses(handler));
     return [this.getResponses(handler), this.getParameters(handler)];
   }
 
