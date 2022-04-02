@@ -1,9 +1,8 @@
 import express from 'express-original';
-import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models, OAPI_METHODS } from "./model";
+import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models, OAPI_METHODS } from './model';
 import { emitter } from './event';
 import { RequestHandler } from 'express';
 import _ from 'lodash';
-
 
 const isHTTPMethod = (method: string): method is HTTP_METHOD => {
   return ['all', ...OAPI_METHODS].includes(method);

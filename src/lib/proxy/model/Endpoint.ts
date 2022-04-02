@@ -1,6 +1,6 @@
 #!/usr/local/bin ts-node
 
-import { HTTP_METHOD } from "./Method";
+import { HTTP_METHOD } from './Method';
 import { OpenAPIV3 } from 'openapi-types';
 import { mineExpressResponses } from '../analyzer';
 

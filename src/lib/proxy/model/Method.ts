@@ -12,4 +12,4 @@ export enum HTTP_METHOD {
   TRACE = 'trace',
 }
 
-export const OAPI_METHODS = Object.values(HTTP_METHOD)
+export const OAPI_METHODS = Object.values(HTTP_METHOD);
