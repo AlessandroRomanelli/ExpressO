@@ -1,26 +1,25 @@
 import express from 'express-original';
-import { Endpoint, ExpressHandler, Handler, HTTP_METHODS, Method, models } from './model';
+import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models, OAPI_METHODS } from "./model";
 import { emitter } from './event';
 import { RequestHandler } from 'express';
 import _ from 'lodash';
 
-const isHTTPMethod = (method: string): method is Method => {
-  return HTTP_METHODS.includes(method as Method);
+
+const isHTTPMethod = (method: string): method is HTTP_METHOD => {
+  return ['all', ...OAPI_METHODS].includes(method);
 };
 
 let opIndex = 0;
 const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
-  const routeHandlerEndpoint = (method: Method): ProxyHandler<RequestHandler> => ({
+  const routeHandlerEndpoint = (method: HTTP_METHOD | 'all'): ProxyHandler<RequestHandler> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
-      app.add(
-        new Endpoint(
-          method,
-          path,
-          handlers.flatMap((x) => x).map((x) => x.toString()),
-          opIndex++,
-        ),
-      );
+      const routeHandlers = handlers.flatMap((x) => x).map((x) => x.toString());
+      if (method === 'all') {
+        OAPI_METHODS.forEach((m) => app.add(new Endpoint(m, path, routeHandlers, opIndex++)));
+      } else {
+        app.add(new Endpoint(method, path, routeHandlers, opIndex++));
+      }
       emitter.emit('api-update');
     },
   });
@@ -43,12 +42,14 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
         app.mount(path, Reflect.get(handler, 'model'));
         models.delete(Reflect.get(handler, 'model'));
       } else if (isHandler(handler)) {
-        app.add(
-          new Endpoint(
-            'all',
-            path + '*',
-            handlers.flatMap((x) => x).map((x) => x.toString()),
-            opIndex++,
+        OAPI_METHODS.forEach((m) =>
+          app.add(
+            new Endpoint(
+              m,
+              path + '*',
+              handlers.flatMap((x) => x).map((x) => x.toString()),
+              opIndex++,
+            ),
           ),
         );
       }

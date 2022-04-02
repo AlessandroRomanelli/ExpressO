@@ -1,25 +1,25 @@
 #!/usr/local/bin ts-node
 
-import { Method } from './Method';
+import { HTTP_METHOD } from "./Method";
 import { OpenAPIV3 } from 'openapi-types';
 import { mineExpressResponses } from '../analyzer';
 
 export interface EndpointJSON {
-  method: Method;
+  method: HTTP_METHOD;
   path: string;
   handlers: string[];
   index: number;
 }
 
 export class Endpoint {
-  readonly method: Method;
+  readonly method: HTTP_METHOD;
   readonly path: string;
   readonly handlers: string[];
   responses: OpenAPIV3.ResponsesObject = {};
   params: OpenAPIV3.ParameterObject[] = [];
   readonly index: number;
 
-  constructor(method: Method, path: string, handlers: string[], opIndex: number) {
+  constructor(method: HTTP_METHOD, path: string, handlers: string[], opIndex: number) {
     this.method = method;
     this.path = path;
     this.handlers = handlers;

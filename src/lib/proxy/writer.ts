@@ -1,5 +1,5 @@
 import path from 'path';
-import { Endpoint, Handler, Method } from './model';
+import { Endpoint, Handler, HTTP_METHOD } from './model';
 import { readFile, writeJSON } from 'fs-extra';
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
@@ -19,11 +19,11 @@ const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
   const endpoints = handler.getEndpoints();
   return Object.keys(endpoints)
     .map((pattern) => {
-      const methods: Method[] = Object.keys(endpoints[pattern]) as Method[];
+      const methods = Object.keys(endpoints[pattern]) as HTTP_METHOD[];
       const patternMethods = methods
         .map(
           (method) =>
-            [method, endpointToSpecification(endpoints[pattern][method])] as [Method, OpenAPIV3.OperationObject],
+            [method, endpointToSpecification(endpoints[pattern][method])] as [HTTP_METHOD, OpenAPIV3.OperationObject],
         )
         .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
       return [pattern, patternMethods] as [string, { [k: string]: { responses: StatusCodes[] } }];
@@ -45,7 +45,7 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
   );
 
   return {
-    openapi: '3.1.0',
+    openapi: '3.0.3',
     info: {
       title: pkg.name || '',
       version: pkg.version || '0.0.0',

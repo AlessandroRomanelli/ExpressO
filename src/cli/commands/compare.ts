@@ -17,10 +17,10 @@ export const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare =
       help: true,
     };
 
-  if (!parseOptions.files || parseOptions.files.length < 2) {
-    throw new Error('Must provide at least two file paths as arguments');
+  const [fileA, fileB] = parseOptions.files.split(':');
+  if (!fileA || !fileB) {
+    throw new Error('Must provide two file paths as argument <fileA>:<fileB>');
   }
-  const [fileA, fileB] = parseOptions.files;
 
   return {
     fileA,

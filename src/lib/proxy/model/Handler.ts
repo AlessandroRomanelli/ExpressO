@@ -1,18 +1,18 @@
 import express from 'express-original';
 import { Endpoint, EndpointJSON } from './Endpoint';
-import { Method } from './Method';
+import { HTTP_METHOD } from './Method';
 import path from 'path';
 
 export interface HandlerJSON {
   _instance: ExpressHandler;
-  _endpoints: { [k1: string]: { [k2 in Method]: EndpointJSON } };
+  _endpoints: { [k1: string]: { [k2 in HTTP_METHOD]: EndpointJSON } };
   _routers: { [key: string]: HandlerJSON[] };
 }
 
 export type ExpressHandler = express.Express | express.Application | express.Router;
 export class Handler {
   private readonly _instance: ExpressHandler;
-  private readonly _endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
+  private readonly _endpoints: { [k1: string]: { [k2 in HTTP_METHOD]: Endpoint } } = {};
   private readonly _routers: { [key: string]: Handler[] } = {};
 
   constructor(app: ExpressHandler) {
@@ -40,8 +40,8 @@ export class Handler {
   }
 
   // TODO: Add sorting depending on operation order
-  getEndpoints(basePath = ''): { [k1: string]: { [k2 in Method]: Endpoint } } {
-    const endpoints: { [k1: string]: { [k2 in Method]: Endpoint } } = {};
+  getEndpoints(basePath = ''): { [k1: string]: { [k2 in HTTP_METHOD]: Endpoint } } {
+    const endpoints: { [k1: string]: { [k2 in HTTP_METHOD]: Endpoint } } = {};
     for (const p of Object.keys(this._endpoints)) {
       const fullPath = path.normalize(`${basePath}${p}`);
       endpoints[fullPath] = this._endpoints[p];
