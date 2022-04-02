@@ -48,7 +48,7 @@ export class Handler {
     }
     for (const p of Object.keys(this._routers)) {
       const fullPath = path.normalize(`${basePath}${p}`);
-      this._routers[p].forEach(router => Object.assign(endpoints, router.getEndpoints(fullPath)))
+      this._routers[p].forEach((router) => Object.assign(endpoints, router.getEndpoints(fullPath)));
     }
     return endpoints;
   }
@@ -57,9 +57,10 @@ export class Handler {
     const handler = new Handler(obj._instance);
     const endpoints = Object.values(obj._endpoints).flatMap((x) => Object.values(x).map((x) => Endpoint.fromJSON(x)));
     endpoints.forEach((x) => handler.add(x));
-    const entries = Object.entries(obj._routers)
-      .map(([path, handlers]) => [path, handlers.map(handler => Handler.fromJSON(handler))] as [string, Handler[]]);
-    entries.forEach(([path, handlers]) => handlers.forEach(x => handler.mount(path, x)));
+    const entries = Object.entries(obj._routers).map(
+      ([path, handlers]) => [path, handlers.map((handler) => Handler.fromJSON(handler))] as [string, Handler[]],
+    );
+    entries.forEach(([path, handlers]) => handlers.forEach((x) => handler.mount(path, x)));
     return handler;
   }
 }

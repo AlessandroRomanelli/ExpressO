@@ -173,8 +173,8 @@ export const mineExpressResponses = (fnBody: string): OpenAPIV3.ResponsesObject 
   const [, { name: resName }] = fn.params;
 
   // Check if implicit return of arrow function and short-circuit
-  if (fn.type === "ArrowFunctionExpression" && fn.body.type === "CallExpression") {
-    return mineStatementForResponse(fn.body, resName)?.toSpecification() || {}
+  if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'CallExpression') {
+    return mineStatementForResponse(fn.body, resName)?.toSpecification() || {};
   }
 
   const responses: ResponseStatus[] = find(
