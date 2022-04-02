@@ -177,16 +177,29 @@ describe('Analyzer [Responses]', () => {
     })
 
     it("should handle await in functions", () => {
-        function delay(ms: number) {
-            return new Promise(resolve => {
-                setTimeout(resolve, ms);
-            });
-        }
-
         const responses = Object.keys(mineExpressResponses(`async (req, res, next) => {
             await delay(1000)
             res.json([])
         }`))
+        expect(responses.length).toBe(1)
+        expect(responses).toContain('200')
+    })
+
+    it("should handle implicit returns", () => {
+        const responses = Object.keys(mineExpressResponses(`(req, res, next) => res.json([])`))
+        expect(responses.length).toBe(1)
+        expect(responses).toContain('200')
+    })
+
+    it("should handle try...catch statements", () => {
+        const responses = Object.keys(mineExpressResponses(`async (req, res) => {
+  try {
+    const results = await Actors.findAll({ raw: true });
+    res.json(results);
+  } catch (error) {
+    next(error);
+  }
+}`))
         expect(responses.length).toBe(1)
         expect(responses).toContain('200')
     })

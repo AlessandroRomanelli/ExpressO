@@ -2,6 +2,7 @@ import express from 'express-original';
 import { Endpoint, ExpressHandler, Handler, HTTP_METHODS, Method, models } from './model';
 import { emitter } from './event';
 import { RequestHandler } from 'express';
+import _ from "lodash";
 
 const isHTTPMethod = (method: string): method is Method => {
   return HTTP_METHODS.includes(method as Method);
@@ -16,7 +17,7 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
         new Endpoint(
           method,
           path,
-          handlers.flatMap((x) => x).map((x) => x.toString()),
+          handlers.flatMap(x => x).map(x => x.toString()),
           opIndex++,
         ),
       );
@@ -24,12 +25,33 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
     },
   });
 
+  const isHandler = (handler: any): handler is RequestHandler => {
+    return (handler as RequestHandler).apply !== undefined
+  }
+
+  const isRouter = (handler: any): handler is express.IRouter => {
+    return (handler as express.IRouter).use !== undefined
+  }
+
   const routeHandlerMount: ProxyHandler<RequestHandler> = {
     apply: (target, thisArg, argArray) => {
       if (argArray.length < 2) return;
-      const [path, ...[router]] = argArray as [string, ...express.IRouter[]];
-      app.mount(path, Reflect.get(router, 'model'));
-      models.delete(Reflect.get(router, 'model'));
+      const [path, ...handlers] = argArray as [string, ...any[]];
+      const handler = _.last(handlers)
+      if (!handler) return
+      if (isRouter(handler)) {
+        app.mount(path, Reflect.get(handler, 'model'));
+        models.delete(Reflect.get(handler, 'model'));
+      } else if (isHandler(handler)) {
+        app.add(
+          new Endpoint(
+            "all",
+            path+"*",
+            handlers.flatMap(x => x).map(x => x.toString()),
+            opIndex++
+          )
+        )
+      }
       emitter.emit('api-update');
     },
   };
