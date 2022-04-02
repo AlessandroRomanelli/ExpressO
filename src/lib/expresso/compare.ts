@@ -12,14 +12,13 @@ export const expressoCompare = async (options: CLIOptionsCompare): Promise<void>
 
   if (options.help)
     return console.log(
-      `Usage: expresso compare <fileA> <fileB> [options]
+      `Usage: expresso compare <fileA> <fileB> [--json]
 
 This command compare two user-provided specifications and generates a report of how much the OAPI specification of fileB covers what is specified in fileA.
 
 Available options:
 ${table(
   [
-    ['-H', '--help', 'Prints to console description and options for this command'],
     ['-J', '--json', 'Switches output from human-readable to JSON format'],
   ],
   tableOptions,

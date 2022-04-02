@@ -50,7 +50,6 @@ export class Handler {
       const fullPath = path.normalize(`${basePath}${p}`);
       Object.assign(endpoints, this._routers[p].getEndpoints(fullPath));
     }
-
     return endpoints;
   }
 

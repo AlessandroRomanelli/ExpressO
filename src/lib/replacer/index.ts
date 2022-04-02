@@ -59,7 +59,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       path.resolve(npmLibFolder, 'node_modules/expresso-api'),
       path.resolve(basePath, '.expresso-runtime/node_modules/express'),
       {
-        recursive: true
+        recursive: true,
+        overwrite: true
       }
     )
 
@@ -82,6 +83,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       path.resolve(basePath, '.expresso-runtime/node_modules/express-original'),
       {
         recursive: true,
+        overwrite: true
       },
     );
     logger.info(`Created 'express' proxy within work copy`);

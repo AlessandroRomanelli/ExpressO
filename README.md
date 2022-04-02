@@ -1,16 +1,64 @@
 # ExpressO
-An Express.js tool to statically analyze the backend, generating the specification for its routes using the OpenAPI standard.
+An Express.js CLI tool to statically analyze the backend, generating the specification for its routes using the OpenAPI standard.
 
 ## Context
 This software is developed in the context of the 2022 Spring semester for the Master Thesis in Software & Data Engineering.
 
 ## How to install
-`npm install expresso`, (optionally -g to install globally);
+`npm install -g expresso`
 
-## How to use
-There are several ways to use the tool:
-- `expresso generate`: will statically analyze your project and generate the corresponding `openapi.yaml` OpenAPI 3.0 specification;
-- `expresso monitor`: will generate the OpenAPI 3.0 specification and add middleware to your Express.js application to monitor route usage and infer payloads schemas;
-- `expresso test <custom_specification>`: will evaluate the generated specification against your provided specification and generate a report of mismatches.
+This will allow you to use the `expresso` command from anywhere.
 
-## Acknowledgements
+## Requirements
+The project for which you wish to generate the OpenAPI specification should:
+- be an Express.js project;
+- be able to complete the start-up without any errors;
+
+## Commands &mdash; How to use
+### Generate
+This command is used to generate the OpenAPI3.0 specification relative to an Express.js project by statically analyzing it.
+
+Usage: `expresso generate [--root] [--start] [--output] [--ext]`
+
+Description:
+
+| Command    | Alias | Description                                                                                                                   | Default              |
+|------------|-------|-------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| `--root`   |       | Specifies the root of the Express.js project to generate an OpenAPI specification for, defaults to current working directory. | `process.cwd()`      |
+| `--start`  |       | The command line that will be used to start the project.                                                                      | `npm start`          |
+| `--output` | `-O`  | Specifies a path of where to output the OpenAPI specification.                                                                | `./expresso-openapi` |
+| `--ext`    | `-E`  | Specifies which format to use for the output between `json` and `yaml`.                                                       | `json`               |
+
+### Monitor
+This command is similar to `generate` but will continue monitoring the backend and periodically update the OpenAPI3.0 specification with metrics about the data coming through the routes.
+
+    Not implemented yet.
+
+### Test 
+This command takes as input another specification and compares it to the one that the tool is able to generate.
+
+    Not implemented yet.
+
+### Compare
+Usage: `expresso compare <fileA> <fileB> [--json]`
+
+Description:
+
+| Command  | Alias | Description                                                    | Default |
+|----------|-------|----------------------------------------------------------------|---------|
+| `--json` | `-J`  | Specifies to produce a JSON instead of a human readable report | `False` |
+
+## Limitations
+Currently, the tool only allows users to extract all the endpoints registered in the application and the corresponding response codes.
+This should suffice to generate the skeleton of a valid OpenAPI documentation.
+
+## Known Issues
+- The response mining has issues with local identifiers. Global constants are self explanatory but local variables (e.g: `status`) does not say anything about the type of response.
+
+## Contributors
+
+| Title | Full Name            | Association                       | Role       |
+|-------|----------------------|-----------------------------------|------------|
+|       | Alessandro Romanelli |                                   | Developer  |
+| Prof. | Cesare Pautasso      | Software Institute (Design Gorup) | Advisor    |
+|       | Souhaila Serbout     | Software Institute (Design Group) | Co-advisor |
