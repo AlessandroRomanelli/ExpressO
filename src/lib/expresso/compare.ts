@@ -17,12 +17,7 @@ export const expressoCompare = async (options: CLIOptionsCompare): Promise<void>
 This command compare two user-provided specifications and generates a report of how much the OAPI specification of fileB covers what is specified in fileA.
 
 Available options:
-${table(
-  [
-    ['-J', '--json', 'Switches output from human-readable to JSON format'],
-  ],
-  tableOptions,
-)}`,
+${table([['-J', '--json', 'Switches output from human-readable to JSON format']], tableOptions)}`,
     );
   const results = await compareSpecifications(options.fileA, options.fileB);
   if (options.json) {

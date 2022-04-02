@@ -3,10 +3,9 @@ import { stat, move, copy, remove, readFile } from 'fs-extra';
 import logger from 'jet-logger';
 import filesize from 'filesize';
 import { exec as syncExec } from 'child_process';
-import util from "util";
+import util from 'util';
 
 const exec = util.promisify(syncExec);
-
 
 /**
  * Function to create a working copy of the project at basePath substituting express
@@ -51,8 +50,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     await move(path.resolve(basePath, '../.expresso-runtime'), path.resolve(basePath, '.expresso-runtime'));
     logger.info(`Created folder '.expresso-runtime' work copy`);
 
-    const { stdout } = await exec("npm list -g | head -1")
-    const npmLibFolder = stdout.trim()
+    const { stdout } = await exec('npm list -g | head -1');
+    const npmLibFolder = stdout.trim();
 
     // Install the global 'expresso-api' as local 'express' within the work copy
     await copy(
@@ -60,9 +59,9 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       path.resolve(basePath, '.expresso-runtime/node_modules/express'),
       {
         recursive: true,
-        overwrite: true
-      }
-    )
+        overwrite: true,
+      },
+    );
 
     try {
       // Install the 'express' types within as types for 'expresso-api'
@@ -74,7 +73,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
         },
       );
     } catch (e) {
-      logger.warn("Could not find any 'express' types installed")
+      logger.warn("Could not find any 'express' types installed");
     }
 
     // Install the real 'express' within the work copy with a different name to avoid conflicts
@@ -83,11 +82,10 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       path.resolve(basePath, '.expresso-runtime/node_modules/express-original'),
       {
         recursive: true,
-        overwrite: true
+        overwrite: true,
       },
     );
     logger.info(`Created 'express' proxy within work copy`);
-
   } catch (e) {
     logger.err(e);
     logger.err(`Failed to replace 'express' in folder '${path.resolve(basePath, '.expresso-runtime')}'`);

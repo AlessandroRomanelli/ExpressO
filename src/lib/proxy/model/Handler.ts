@@ -1,7 +1,7 @@
 import express from 'express-original';
 import { Endpoint, EndpointJSON } from './Endpoint';
 import { Method } from './Method';
-import path from 'path'
+import path from 'path';
 
 export interface HandlerJSON {
   _instance: ExpressHandler;

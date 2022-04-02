@@ -9,9 +9,13 @@ export const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare =
   ];
 
   const parseOptions = commandLineArgs(parseCommandDefinitions, { stopAtFirstUnknown: true, argv });
-  if (parseOptions.help) return {
-    fileA: "", fileB: "", json: false, help: true
-  }
+  if (parseOptions.help)
+    return {
+      fileA: '',
+      fileB: '',
+      json: false,
+      help: true,
+    };
 
   if (!parseOptions.files || parseOptions.files.length < 2) {
     throw new Error('Must provide at least two file paths as arguments');
