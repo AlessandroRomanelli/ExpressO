@@ -1,9 +1,9 @@
-import { CLIOptions, CLIOptionsCompare, CLIOptionsGenerate, CLIOptionsTest } from "../../cli/types";
+import { CLIOptions, CLIOptionsCompare, CLIOptionsGenerate, CLIOptionsTest } from '../../cli/types';
 import { expressoCompare } from './compare';
 import { expressoVersion } from './version';
 import { expressoHelp } from './help';
 import { expressoGenerate } from './generate';
-import { expressoTest } from "./test";
+import { expressoTest } from './test';
 
 export const expresso = async (options: CLIOptions): Promise<void> => {
   if (options.command === 'version') {

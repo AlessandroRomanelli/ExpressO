@@ -12,15 +12,16 @@ export const parseTestCommandLineArgs = (argv: string[]): CLIOptionsTest => {
 
   const testOptions = commandLineArgs(testCommandDefinitions, { stopAtFirstUnknown: true, argv });
 
-  if (!testOptions.file) throw new Error("Must provide a OAPI specification file as input.\nUsage: expresso test <file>")
+  if (!testOptions.file)
+    throw new Error('Must provide a OAPI specification file as input.\nUsage: expresso test <file>');
 
   return {
     fileA: testOptions.file,
     json: testOptions.json,
     help: testOptions.help,
-    extension: "json",
-    output: "expresso-openapi",
+    extension: 'json',
+    output: 'expresso-openapi',
     root: testOptions.root,
-    startLine: testOptions.start
+    startLine: testOptions.start,
   };
 };

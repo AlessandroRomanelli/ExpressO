@@ -19,9 +19,7 @@ export interface CLIOptionsComparison extends CLISubOptions {
   fileA: string;
 }
 
-export interface CLIOptionsTest extends CLIOptionsComparison, CLIOptionsSpecification {
-
-}
+export interface CLIOptionsTest extends CLIOptionsComparison, CLIOptionsSpecification {}
 
 export interface CLIOptionsCompare extends CLIOptionsComparison {
   fileB: string;

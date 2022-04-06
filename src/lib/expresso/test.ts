@@ -2,8 +2,8 @@ import { CLIOptionsTest } from '../../cli/types';
 import { compareSpecifications, generateReport } from '../comparator';
 import { generateSpecification } from '../generator';
 import { table } from 'table';
-import { remove } from "fs-extra";
-import path from "path";
+import { remove } from 'fs-extra';
+import path from 'path';
 
 export const expressoTest = async (options: CLIOptionsTest): Promise<void> => {
   const tableOptions = {
@@ -25,7 +25,7 @@ ${table([['-J', '--json', 'Switches output from human-readable to JSON format']]
   await generateSpecification(options);
 
   const results = await compareSpecifications(options.fileA, `./${options.output}.${options.extension}`);
-  await remove(path.resolve(options.root, `./${options.output}.${options.extension}`))
+  await remove(path.resolve(options.root, `./${options.output}.${options.extension}`));
   if (options.json) {
     return console.log(results);
   }
