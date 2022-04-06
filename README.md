@@ -35,14 +35,36 @@ This command is similar to `generate` but will continue monitoring the backend a
     Not implemented yet.
 
 ### Test 
-This command takes as input another specification and compares it to the one that the tool is able to generate.
+This command takes as input another specification and compares it to the one that the tool generates.
 
-    Not implemented yet.
+Usage: `expresso test <OAPIspec> [--root] [--start] [--output] [--ext]`
+
+#### Arguments
+
+| Argument   | Description                                                                                                     |
+|------------|-----------------------------------------------------------------------------------------------------------------|
+| `OAPIspec` | Specifies the file path that points to the OpenAPI specification that the generated one will be tested against. |
+
+#### Options' descriptions
+
+| Command    | Alias | Description                                                                                                                   | Default              |
+|------------|-------|-------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| `--root`   |       | Specifies the root of the Express.js project to generate an OpenAPI specification for, defaults to current working directory. | `process.cwd()`      |
+| `--start`  |       | The command line that will be used to start the project.                                                                      | `npm start`          |
+| `--output` | `-O`  | Specifies a path of where to output the OpenAPI specification.                                                                | `./expresso-openapi` |
+| `--ext`    | `-E`  | Specifies which format to use for the output between `json` and `yaml`.                                                       | `json`               |
 
 ### Compare
-Usage: `expresso compare <fileA> <fileB> [--json]`
+Usage: `expresso compare <OAPIspecA> <OAPIspecB> [--json]`
 
-Description:
+#### Arguments
+
+| Argument    | Description                                                                                                |
+|-------------|------------------------------------------------------------------------------------------------------------|
+| `OAPIspecA` | Specifies the file path that points to an OpenAPI specification.                                           |
+| `OAPIspecB` | Specifies the file path that points to a second OpenAPI specification that will be compared to `OAPIspecA` |
+
+#### Options' descriptions
 
 | Command  | Alias | Description                                                    | Default |
 |----------|-------|----------------------------------------------------------------|---------|
