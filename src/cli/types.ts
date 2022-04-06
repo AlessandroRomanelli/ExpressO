@@ -14,12 +14,16 @@ export interface CLISubOptions {
   help: boolean;
 }
 
-export interface CLIOptionsTest extends CLISubOptions {
+export interface CLIOptionsComparison extends CLISubOptions {
   json: boolean;
   fileA: string;
 }
 
-export interface CLIOptionsCompare extends CLIOptionsTest {
+export interface CLIOptionsTest extends CLIOptionsComparison, CLIOptionsSpecification {
+
+}
+
+export interface CLIOptionsCompare extends CLIOptionsComparison {
   fileB: string;
 }
 

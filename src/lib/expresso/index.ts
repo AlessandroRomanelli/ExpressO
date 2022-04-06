@@ -1,8 +1,9 @@
-import { CLIOptions, CLIOptionsCompare, CLIOptionsGenerate } from '../../cli/types';
+import { CLIOptions, CLIOptionsCompare, CLIOptionsGenerate, CLIOptionsTest } from "../../cli/types";
 import { expressoCompare } from './compare';
 import { expressoVersion } from './version';
 import { expressoHelp } from './help';
 import { expressoGenerate } from './generate';
+import { expressoTest } from "./test";
 
 export const expresso = async (options: CLIOptions): Promise<void> => {
   if (options.command === 'version') {
@@ -13,9 +14,9 @@ export const expresso = async (options: CLIOptions): Promise<void> => {
     return await expressoCompare(options.subOptions as CLIOptionsCompare);
   } else if (options.command === 'generate') {
     return await expressoGenerate(options.subOptions as CLIOptionsGenerate);
-    // eslint-disable-next-line no-empty
   } else if (options.command === 'monitor') {
     // eslint-disable-next-line no-empty
   } else if (options.command === 'test') {
+    return await expressoTest(options.subOptions as CLIOptionsTest);
   }
 };

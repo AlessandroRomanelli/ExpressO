@@ -76,6 +76,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       logger.warn("Could not find any 'express' types installed");
     }
 
+    // TODO: Version check and warn if !3.X
     // Install the real 'express' within the work copy with a different name to avoid conflicts
     await copy(
       path.resolve(basePath, 'node_modules/express'),

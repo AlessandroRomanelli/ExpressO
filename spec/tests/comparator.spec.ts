@@ -1,9 +1,10 @@
 import path from 'path'
-import {compareSpecifications} from "../../src/lib/tester";
+import {compareSpecifications} from "../../src/lib/comparator";
+import logger from "jet-logger";
 
-const examplesPath = "./spec/tests/examples/tester"
+const examplesPath = "./spec/tests/examples/comparator"
 
-describe('Tester [Generic]', () => {
+describe('Comparator [Generic]', () => {
     it ("should throw an error for invalid/non-existent paths", async () => {
         await expectAsync(compareSpecifications("../non_existent/file.yaml", "../non_existent/file.yaml")).toBeRejected()
     })
@@ -26,7 +27,7 @@ describe('Tester [Generic]', () => {
     })
 });
 
-describe('Tester [Endpoints]', () => {
+describe('Comparator [Endpoints]', () => {
     it("should report 100% coverage for the same file", async () => {
         const filePath = path.resolve(examplesPath, "specA.yaml")
         const { endpoints } = await compareSpecifications(filePath, filePath)
@@ -36,35 +37,56 @@ describe('Tester [Endpoints]', () => {
     it("should detect missing endpoint with same path", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/simple${x}.yaml`)
         const { endpoints } = await compareSpecifications(fileA, fileB)
-        expect(endpoints.missing.includes("/repository#post")).toBe(true)
+        expect(endpoints.missing).toContain("/api/repository#post")
     })
 
     it("should detect missing endpoint on different path", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/paths${x}.yaml`)
         const { endpoints } = await compareSpecifications(fileA, fileB)
-        expect(endpoints.missing.includes("/repositories#get")).toBe(true)
+        expect(endpoints.missing).toContain("/api/repositories#get")
     })
 
     it("should detect additional endpoint with same path", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/simple${x}.yaml`)
         const { endpoints } = await compareSpecifications(fileB, fileA)
-        expect(endpoints.additional.includes("/repository#post")).toBe(true)
+        expect(endpoints.additional).toContain("/api/repository#post")
     })
 
     it("should detect additional endpoint with different path", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/paths${x}.yaml`)
         const { endpoints } = await compareSpecifications(fileB, fileA)
-        expect(endpoints.additional.includes("/repositories#get")).toBe(true)
+        expect(endpoints.additional).toContain("/api/repositories#get")
     })
 
     it("should detect matching endpoint", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/paths${x}.yaml`)
         const { endpoints } = await compareSpecifications(fileB, fileA)
-        expect(endpoints.matched.includes("/repository#get")).toBe(true)
+        expect(endpoints.matched).toContain("/api/repository#get")
+    })
+
+    it("should consider base paths when matching", async () => {
+        const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/basePaths${x}.yaml`)
+        const { endpoints } = await compareSpecifications(fileB, fileA)
+        expect(endpoints.matched).toContain("/api/repository#get")
+        expect(endpoints.coverage).toBe(1)
+    })
+
+    it("should handle specifications when no servers property is specified", async () => {
+        const [ fileA, fileB ] = ["A","NoServers"].map(x => `${examplesPath}/basePaths${x}.yaml`)
+        const { endpoints } = await compareSpecifications(fileB, fileA)
+        expect(endpoints.matched).toContain("/api/repository#get")
+        expect(endpoints.coverage).toBe(1)
+    })
+
+    it("should handle specification with servers without a full path", async () => {
+        const [ fileA, fileB ] = ["A","Shortened"].map(x => `${examplesPath}/basePaths${x}.yaml`)
+        const { endpoints } = await compareSpecifications(fileB, fileA)
+        expect(endpoints.matched).toContain("/api/repository#get")
+        expect(endpoints.coverage).toBe(1)
     })
 })
 
-describe('Tester [Responses]', () => {
+describe('Comparator [Responses]', () => {
     it("should report 100% coverage for the same file", async () => {
         const filePath = path.resolve(examplesPath, "specA.yaml")
         const { responses } = await compareSpecifications(filePath, filePath)
@@ -74,23 +96,23 @@ describe('Tester [Responses]', () => {
     it("should detect missing response", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/response${x}.yaml`)
         const { responses } = await compareSpecifications(fileA, fileB)
-        expect(responses.missing.includes("/repository#get#404")).toBe(true)
+        expect(responses.missing.includes("/api/repository#get#404")).toBe(true)
     })
 
     it("should detect additional response", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/response${x}.yaml`)
         const { responses } = await compareSpecifications(fileB, fileA)
-        expect(responses.additional.includes("/repository#get#404")).toBe(true)
+        expect(responses.additional.includes("/api/repository#get#404")).toBe(true)
     })
 
     it("should match response", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/response${x}.yaml`)
         const { responses } = await compareSpecifications(fileB, fileA)
-        expect(responses.matched.includes("/repository#get#200")).toBe(true)
+        expect(responses.matched.includes("/api/repository#get#200")).toBe(true)
     })
 })
 
-describe('Tester [Parameters]', () => {
+describe('Comparator [Parameters]', () => {
     it("should report 100% coverage for the same file", async () => {
         const filePath = path.resolve(examplesPath, "specA.yaml")
         const { parameters } = await compareSpecifications(filePath, filePath)
@@ -100,19 +122,19 @@ describe('Tester [Parameters]', () => {
     it("should detect missing parameter", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/params${x}.yaml`)
         const { parameters } = await compareSpecifications(fileA, fileB)
-        expect(parameters.missing.includes("/repository#get#password"))
+        expect(parameters.missing.includes("/api/repository#get#password"))
     })
 
     it("should detect additional parameter", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/params${x}.yaml`)
         const { parameters } = await compareSpecifications(fileB, fileA)
-        expect(parameters.additional.includes("/repository#get#password"))
+        expect(parameters.additional.includes("/api/repository#get#password"))
     })
 
     it("should match parameter", async () => {
         const [ fileA, fileB ] = ["A","B"].map(x => `${examplesPath}/params${x}.yaml`)
         const { parameters } = await compareSpecifications(fileA, fileB)
-        expect(parameters.matched.includes("/repository#get#username"))
+        expect(parameters.matched.includes("/api/repository#get#username"))
     })
 })
 

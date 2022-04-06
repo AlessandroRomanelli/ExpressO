@@ -45,7 +45,7 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
           app.add(
             new Endpoint(
               m,
-              path + '*',
+              path + '/*',
               handlers.flatMap((x) => x).map((x) => x.toString()),
               opIndex++,
             ),

@@ -1,5 +1,5 @@
 import { CLIOptionsCompare } from '../../cli/types';
-import { compareSpecifications, generateReport } from '../tester';
+import { compareSpecifications, generateReport } from '../comparator';
 import { table } from 'table';
 
 export const expressoCompare = async (options: CLIOptionsCompare): Promise<void> => {

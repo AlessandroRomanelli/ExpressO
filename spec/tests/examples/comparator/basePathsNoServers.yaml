@@ -1,0 +1,21 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+paths:
+  /api/repository:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoriesPage
+      responses:
+        200:
+          description: OK
+  /api/repositories:
+    get:
+      tags:
+        - git-repository-controller
+      operationId: getRepositoriesPage
+      responses:
+        200:
+          description: OK
