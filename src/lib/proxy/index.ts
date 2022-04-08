@@ -1,9 +1,9 @@
-import express from "express-original";
-import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models } from "./model";
-import { emitter } from "./event";
-import { RequestHandler } from "express";
-import path from "path";
-import _ from "lodash";
+import express from 'express-original';
+import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models } from './model';
+import { emitter } from './event';
+import { RequestHandler } from 'express';
+import path from 'path';
+import _ from 'lodash';
 
 const isHTTPMethod = (method: string): method is HTTP_METHOD => {
   return Object.values(HTTP_METHOD).includes(method as HTTP_METHOD);
@@ -38,12 +38,14 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
         app.mount(p, Reflect.get(handler, 'model'));
         models.delete(Reflect.get(handler, 'model'));
       } else if (isHandler(handler)) {
-        app.add(new Endpoint(
-          HTTP_METHOD.ALL,
-          path.resolve(p, "*"),
-          handlers.flatMap(x => x).map(x => x.toString()),
-          opIndex++
-        ))
+        app.add(
+          new Endpoint(
+            HTTP_METHOD.ALL,
+            path.resolve(p, '*'),
+            handlers.flatMap((x) => x).map((x) => x.toString()),
+            opIndex++,
+          ),
+        );
       }
       emitter.emit('api-update');
     },

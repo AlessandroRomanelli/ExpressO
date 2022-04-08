@@ -1,9 +1,9 @@
-import { OpenAPIV3 } from "openapi-types";
-import { find, remove } from "abstract-syntax-tree";
-import { getReasonPhrase } from "http-status-codes";
-import _ from "lodash";
-import md5 from "md5";
-import { parseHandler } from "./index";
+import { OpenAPIV3 } from 'openapi-types';
+import { find, remove } from 'abstract-syntax-tree';
+import { getReasonPhrase } from 'http-status-codes';
+import _ from 'lodash';
+import md5 from 'md5';
+import { parseHandler } from './index';
 
 const EXPRESS_TERMINATORS = [
   'send',
@@ -115,7 +115,7 @@ const mineStatementResponse = (statement: any, resName: string): ResponseStatus 
     find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'] > *:last-child, ` +
-      `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
+        `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
     ),
   );
   if (response) return mineNodeResponse(response);
@@ -133,14 +133,14 @@ const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
   const statements = find(
     block,
     `IfStatement ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
-    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`,
+      `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`,
   );
   const lastStatement = _.last(
     find(
       block,
       `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-      `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-      `AssignmentExpression[left.object.name=${resName}]`,
+        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
+        `AssignmentExpression[left.object.name=${resName}]`,
     ),
   );
   if (lastStatement) {
@@ -152,9 +152,9 @@ const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
         `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
           '|',
         )}/]), ` +
-        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
-          '|',
-        )}/])`,
+          `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
+            '|',
+          )}/])`,
       ),
     );
     if (lastStatement) statements.push(lastStatement);
@@ -163,25 +163,26 @@ const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
   return statements.map((x: any) => mineStatementResponse(x, resName));
 };
 
+export const mineResponses = _.memoize(
+  (fnBody: string): OpenAPIV3.ResponsesObject => {
+    const fn = parseHandler(fnBody);
 
-export const mineResponses = _.memoize((fnBody: string): OpenAPIV3.ResponsesObject => {
-  const fn = parseHandler(fnBody)
+    const [, { name: resName }] = fn.params;
 
-  const [, { name: resName }] = fn.params;
+    // Check if implicit return of arrow function and short-circuit
+    if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'CallExpression') {
+      return mineStatementResponse(fn.body, resName)?.toSpecification() || {};
+    }
 
-  // Check if implicit return of arrow function and short-circuit
-  if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'CallExpression') {
-    return mineStatementResponse(fn.body, resName)?.toSpecification() || {};
-  }
+    const responses: ResponseStatus[] = find(
+      fn,
+      `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
+        `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
+    )
+      .flatMap((x: any) => mineBlockResponses(x, resName))
+      .filter((x: any) => x);
 
-  const responses: ResponseStatus[] = find(
-    fn,
-    `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
-    `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
-  )
-    .flatMap((x: any) => mineBlockResponses(x, resName))
-    .filter((x: any) => x);
-
-  return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});
-}, (fnBody) => md5(fnBody));
-
+    return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});
+  },
+  (fnBody) => md5(fnBody),
+);
