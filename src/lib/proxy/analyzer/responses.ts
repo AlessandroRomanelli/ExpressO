@@ -1,8 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
-import { find, parse, remove } from "abstract-syntax-tree";
+import { find, remove } from "abstract-syntax-tree";
 import { getReasonPhrase } from "http-status-codes";
 import _ from "lodash";
 import md5 from "md5";
+import { parseHandler } from "./index";
 
 const EXPRESS_TERMINATORS = [
   'send',
@@ -80,23 +81,23 @@ class ResponseStatusIdentifier extends ResponseStatus {
   }
 }
 
-const getStatusCodeForTerminator = (terminator: any): ResponseStatus => {
+const getStatusCodeTerminator = (terminator: any): ResponseStatus => {
   switch (terminator.callee.property.name) {
     case 'redirect': {
       if (terminator.arguments.length > 1) {
-        return mineNodeForResponse(terminator.arguments[0]);
+        return mineNodeResponse(terminator.arguments[0]);
       }
       return new ResponseStatusLiteral(302);
     }
     case 'sendStatus': {
-      return mineNodeForResponse(terminator.arguments[0]);
+      return mineNodeResponse(terminator.arguments[0]);
     }
     default:
       return new ResponseStatusLiteral(200);
   }
 };
 
-const mineNodeForResponse = (node: any): ResponseStatus => {
+const mineNodeResponse = (node: any): ResponseStatus => {
   switch (node.type) {
     case 'Literal':
       return new ResponseStatusLiteral(node.value);
@@ -109,7 +110,7 @@ const mineNodeForResponse = (node: any): ResponseStatus => {
   }
 };
 
-const mineStatementForResponse = (statement: any, resName: string): ResponseStatus | undefined => {
+const mineStatementResponse = (statement: any, resName: string): ResponseStatus | undefined => {
   const response = _.last(
     find(
       statement,
@@ -117,17 +118,17 @@ const mineStatementForResponse = (statement: any, resName: string): ResponseStat
       `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
     ),
   );
-  if (response) return mineNodeForResponse(response);
+  if (response) return mineNodeResponse(response);
   const terminator = _.first(
     find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`,
     ),
   );
-  if (terminator) return getStatusCodeForTerminator(terminator);
+  if (terminator) return getStatusCodeTerminator(terminator);
 };
 
-const mineBlockForResponses = (block: any, resName: string): ResponseStatus[] => {
+const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
   remove(block, 'IfStatement BlockStatement,SwitchStatement');
   const statements = find(
     block,
@@ -159,22 +160,18 @@ const mineBlockForResponses = (block: any, resName: string): ResponseStatus[] =>
     if (lastStatement) statements.push(lastStatement);
   }
 
-  return statements.map((x: any) => mineStatementForResponse(x, resName));
+  return statements.map((x: any) => mineStatementResponse(x, resName));
 };
 
 
 export const mineResponses = _.memoize((fnBody: string): OpenAPIV3.ResponsesObject => {
-  const tree = parse('const __expresso_fn = ' + (fnBody || '0'));
-  const [fn] = find(tree, '*:function');
-  if (fn.params.length < 2) {
-    throw new Error('Handler had less than two args');
-  }
+  const fn = parseHandler(fnBody)
 
   const [, { name: resName }] = fn.params;
 
   // Check if implicit return of arrow function and short-circuit
   if (fn.type === 'ArrowFunctionExpression' && fn.body.type === 'CallExpression') {
-    return mineStatementForResponse(fn.body, resName)?.toSpecification() || {};
+    return mineStatementResponse(fn.body, resName)?.toSpecification() || {};
   }
 
   const responses: ResponseStatus[] = find(
@@ -182,7 +179,7 @@ export const mineResponses = _.memoize((fnBody: string): OpenAPIV3.ResponsesObje
     `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
     `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
   )
-    .flatMap((x: any) => mineBlockForResponses(x, resName))
+    .flatMap((x: any) => mineBlockResponses(x, resName))
     .filter((x: any) => x);
 
   return responses.map((x) => x.toSpecification()).reduce((prev, curr) => Object.assign(prev, curr), {});

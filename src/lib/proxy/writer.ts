@@ -31,7 +31,6 @@ const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
     .map((pattern) => {
       const methods = Object.keys(endpoints[pattern]) as HTTP_METHOD[];
       const patternMethods = _.chunk(_.flatMapDeep(methods, (method) => methodToSpecification(pattern, method)), 2)
-      console.log(patternMethods)
       return [pattern, Object.fromEntries(patternMethods)] as [string, { [k: string]: { responses: StatusCodes[] } }];
     })
     .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
