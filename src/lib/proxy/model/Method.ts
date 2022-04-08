@@ -2,6 +2,7 @@
 // export const HTTP_METHODS: readonly Method[] = ['all', 'get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
 
 export enum HTTP_METHOD {
+  ALL = 'all',
   GET = 'get',
   POST = 'post',
   PUT = 'put',
@@ -11,5 +12,3 @@ export enum HTTP_METHOD {
   HEAD = 'head',
   TRACE = 'trace',
 }
-
-export const OAPI_METHODS = Object.values(HTTP_METHOD);

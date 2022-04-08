@@ -4,6 +4,7 @@ import { readFile, writeJSON } from 'fs-extra';
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
+import _ from "lodash"
 
 const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
   return {
@@ -15,18 +16,23 @@ const patternToSpecification = (pattern: string): string => {
   return pattern.replace(/(?<=\/):(\w+)/g, '{$1}');
 };
 
+
 const handlerToSpecification = (handler: Handler): OpenAPIV3.PathsObject => {
   const endpoints = handler.getEndpoints();
+  const methodToSpecification = (pattern: string, method: HTTP_METHOD): [string, OpenAPIV3.OperationObject][] => {
+    const endpointSpec = endpointToSpecification(endpoints[pattern][method])
+    if (method === 'all') {
+      return Object.values(HTTP_METHOD).filter(x => x !== 'all').map(x => [x, endpointSpec])
+    }
+    return [[method, endpointSpec]]
+  }
+
   return Object.keys(endpoints)
     .map((pattern) => {
       const methods = Object.keys(endpoints[pattern]) as HTTP_METHOD[];
-      const patternMethods = methods
-        .map(
-          (method) =>
-            [method, endpointToSpecification(endpoints[pattern][method])] as [HTTP_METHOD, OpenAPIV3.OperationObject],
-        )
-        .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
-      return [pattern, patternMethods] as [string, { [k: string]: { responses: StatusCodes[] } }];
+      const patternMethods = _.chunk(_.flatMapDeep(methods, (method) => methodToSpecification(pattern, method)), 2)
+      console.log(patternMethods)
+      return [pattern, Object.fromEntries(patternMethods)] as [string, { [k: string]: { responses: StatusCodes[] } }];
     })
     .reduce((prev, [key, value]) => Object.assign(prev, { [key]: value }), {});
 };

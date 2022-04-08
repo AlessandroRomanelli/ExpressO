@@ -1,24 +1,21 @@
-import express from 'express-original';
-import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models, OAPI_METHODS } from './model';
-import { emitter } from './event';
-import { RequestHandler } from 'express';
-import _ from 'lodash';
+import express from "express-original";
+import { Endpoint, ExpressHandler, Handler, HTTP_METHOD, models } from "./model";
+import { emitter } from "./event";
+import { RequestHandler } from "express";
+import path from "path";
+import _ from "lodash";
 
 const isHTTPMethod = (method: string): method is HTTP_METHOD => {
-  return ['all', ...OAPI_METHODS].includes(method);
+  return Object.values(HTTP_METHOD).includes(method as HTTP_METHOD);
 };
 
 let opIndex = 0;
 const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
-  const routeHandlerEndpoint = (method: HTTP_METHOD | 'all'): ProxyHandler<RequestHandler> => ({
+  const routeHandlerEndpoint = (method: HTTP_METHOD): ProxyHandler<RequestHandler> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;
       const routeHandlers = handlers.flatMap((x) => x).map((x) => x.toString());
-      if (method === 'all') {
-        OAPI_METHODS.forEach((m) => app.add(new Endpoint(m, path, routeHandlers, opIndex++)));
-      } else {
-        app.add(new Endpoint(method, path, routeHandlers, opIndex++));
-      }
+      app.add(new Endpoint(method, path, routeHandlers, opIndex++));
       emitter.emit('api-update');
     },
   });
@@ -34,23 +31,19 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
   const routeHandlerMount: ProxyHandler<RequestHandler> = {
     apply: (target, thisArg, argArray) => {
       if (argArray.length < 2) return;
-      const [path, ...handlers] = argArray as [string, ...any[]];
+      const [p, ...handlers] = argArray as [string, ...any[]];
       const handler = _.last(handlers);
       if (!handler) return;
       if (isRouter(handler)) {
-        app.mount(path, Reflect.get(handler, 'model'));
+        app.mount(p, Reflect.get(handler, 'model'));
         models.delete(Reflect.get(handler, 'model'));
       } else if (isHandler(handler)) {
-        OAPI_METHODS.forEach((m) =>
-          app.add(
-            new Endpoint(
-              m,
-              path + '/*',
-              handlers.flatMap((x) => x).map((x) => x.toString()),
-              opIndex++,
-            ),
-          ),
-        );
+        app.add(new Endpoint(
+          HTTP_METHOD.ALL,
+          path.resolve(p, "*"),
+          handlers.flatMap(x => x).map(x => x.toString()),
+          opIndex++
+        ))
       }
       emitter.emit('api-update');
     },

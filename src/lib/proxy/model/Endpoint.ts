@@ -2,7 +2,8 @@
 
 import { HTTP_METHOD } from './Method';
 import { OpenAPIV3 } from 'openapi-types';
-import { mineExpressResponses } from '../analyzer';
+import { mineResponses } from '../analyzer';
+import { mineParameters } from "../analyzer/params";
 
 export interface EndpointJSON {
   method: HTTP_METHOD;
@@ -27,11 +28,11 @@ export class Endpoint {
   }
 
   getResponses(handler: string): OpenAPIV3.ResponsesObject {
-    return mineExpressResponses(handler);
+    return mineResponses(handler);
   }
 
   getParameters(handler: string): OpenAPIV3.ParameterObject[] {
-    return [];
+    return mineParameters(this.path, handler);
   }
 
   analyzeHandler(handler: string): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {
