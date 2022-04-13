@@ -10,7 +10,7 @@ const paramToSpecification = (
   in: location,
   name: paramName,
   schema: {
-    type: 'string'
+    type: 'string',
   },
   ...(required && { required: true }),
 });
@@ -19,17 +19,18 @@ const mineHandlerParams = (fn: any, query: string): string[] => find(fn, query).
 
 const mineHandlerQueryParams = (fn: any): string[] => {
   const [{ name: reqName }] = fn.params;
-  return mineHandlerParams(fn, `MemberExpression[object.object.name='${reqName}'][object.property.name='query']`)
+  return mineHandlerParams(fn, `MemberExpression[object.object.name='${reqName}'][object.property.name='query']`);
 };
 
 const mineHandlerPathParams = (fn: any): string[] => {
   const [{ name: reqName }] = fn.params;
-  return mineHandlerParams(fn, `MemberExpression[object.object.name='${reqName}'][object.property.name='params']`)
+  return mineHandlerParams(fn, `MemberExpression[object.object.name='${reqName}'][object.property.name='params']`);
 };
 
 export const mineParameters = (fnBody: string): OpenAPIV3.ParameterObject[] => {
-  const fn = parseHandler(fnBody)
-  const [pathParameters, queryParameters] = [mineHandlerPathParams, mineHandlerQueryParams]
-    .map(x => x(fn).map((x, i) => paramToSpecification(x, i ? 'query' : 'path')))
+  const fn = parseHandler(fnBody);
+  const [pathParameters, queryParameters] = [mineHandlerPathParams, mineHandlerQueryParams].map((x) =>
+    x(fn).map((x, i) => paramToSpecification(x, i ? 'query' : 'path')),
+  );
   return pathParameters.concat(queryParameters);
 };

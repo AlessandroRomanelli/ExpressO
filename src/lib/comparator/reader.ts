@@ -13,7 +13,7 @@ export const readSpecification = async (filePath: string): Promise<OpenAPIV3.Doc
     resolve: true,
     resolveInternal: true,
     direct: true,
-    prevalidate: false
+    prevalidate: false,
   });
   return (await SwaggerParser.validate(specification)) as OpenAPIV3.Document;
 };

@@ -4,7 +4,7 @@ import { HTTP_METHOD } from './Method';
 import { OpenAPIV3 } from 'openapi-types';
 import { mineResponses } from '../analyzer';
 import { mineParameters } from '../analyzer/params';
-import _ from 'lodash'
+import _ from 'lodash';
 
 export interface EndpointJSON {
   method: HTTP_METHOD;
