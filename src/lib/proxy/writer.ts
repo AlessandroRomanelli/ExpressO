@@ -9,6 +9,7 @@ import _ from 'lodash';
 const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
   return {
     responses: endpoint.responses,
+    parameters: endpoint.params
   };
 };
 

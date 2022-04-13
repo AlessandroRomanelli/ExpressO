@@ -4,6 +4,7 @@ import { HTTP_METHOD } from './Method';
 import { OpenAPIV3 } from 'openapi-types';
 import { mineResponses } from '../analyzer';
 import { mineParameters } from '../analyzer/params';
+import _ from 'lodash'
 
 export interface EndpointJSON {
   method: HTTP_METHOD;
@@ -32,7 +33,7 @@ export class Endpoint {
   }
 
   getParameters(handler: string): OpenAPIV3.ParameterObject[] {
-    return mineParameters(this.path, handler);
+    return mineParameters(handler);
   }
 
   analyzeHandler(handler: string): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {
@@ -45,7 +46,7 @@ export class Endpoint {
       .reduce(
         ([prevResponses, prevParams], [responses, params]) => [
           Object.assign(prevResponses || {}, responses),
-          (prevParams || []).concat(params),
+          _.uniqBy((prevParams || []).concat(params), 'name'),
         ],
         [{}, []],
       );
