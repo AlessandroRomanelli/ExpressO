@@ -2,6 +2,7 @@ import express from 'express-original';
 import { Endpoint, EndpointJSON } from './Endpoint';
 import { HTTP_METHOD } from './Method';
 import path from 'path';
+import { emitter } from "../event"
 
 export interface HandlerJSON {
   _instance: ExpressHandler;
@@ -23,10 +24,12 @@ export class Handler {
     const obj = this._endpoints[endpoint.path] || {};
     obj[endpoint.method] = endpoint;
     this._endpoints[endpoint.path] = obj;
+    emitter.emit('api-update');
   }
 
   mount(path: string, router: Handler) {
     this._routers[path] = (this._routers[path] || []).concat(router);
+    emitter.emit('api-update');
   }
 
   get endpoints() {

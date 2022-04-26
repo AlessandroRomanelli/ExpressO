@@ -1,9 +1,6 @@
-#!/usr/local/bin ts-node
-
 import { HTTP_METHOD } from './Method';
 import { OpenAPIV3 } from 'openapi-types';
-import { mineResponses } from '../analyzer';
-import { mineParameters } from '../analyzer/params';
+import { mineResponses, mineParameters } from '../../analyzer';
 import _ from 'lodash';
 
 export interface EndpointJSON {

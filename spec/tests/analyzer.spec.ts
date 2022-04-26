@@ -1,4 +1,4 @@
-import { mineResponses } from "../../src/lib/proxy/analyzer";
+import { mineResponses } from "../../src/lib/analyzer";
 
 describe('Analyzer [Responses]', () => {
     it("should throw an error if handler is missing params", () => {

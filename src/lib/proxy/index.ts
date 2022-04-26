@@ -16,7 +16,6 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
       const [path, ...handlers] = argArray;
       const routeHandlers = handlers.flatMap((x) => x).map((x) => x.toString());
       app.add(new Endpoint(method, path, routeHandlers, opIndex++));
-      emitter.emit('api-update');
     },
   });
 
@@ -47,7 +46,6 @@ const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
           ),
         );
       }
-      emitter.emit('api-update');
     },
   };
 

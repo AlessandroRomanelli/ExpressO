@@ -1,6 +1,7 @@
 import { find, parse } from 'abstract-syntax-tree';
 
 export { mineResponses } from './responses';
+export { mineParameters } from "./params"
 
 export const parseHandler = (fnBody: string) => {
   const tree = parse('const __expresso_fn = ' + (fnBody || '0'));
