@@ -11,7 +11,7 @@ export const readSpecification = async (filePath: string): Promise<OpenAPIV3.Doc
     patch: true,
     warnOnly: true,
     resolve: true,
-    resolveInternal: true,
+    // resolveInternal: true,
     direct: true,
     prevalidate: false,
   });

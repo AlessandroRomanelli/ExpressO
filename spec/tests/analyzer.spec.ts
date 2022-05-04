@@ -2,7 +2,6 @@ import { mineResponses } from "../../src/lib/analyzer";
 
 describe('Analyzer [Responses]', () => {
     it("should throw an error if handler is missing params", () => {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         expect(() => mineResponses(`function() {}`)).toThrowError("Handler had less than two args")
     })
 
@@ -30,7 +29,7 @@ describe('Analyzer [Responses]', () => {
         expect(responses).toContain('404')
     })
 
-    it("should detect multiple explicit statuses (200 + 404)", () => {
+    it("should detect multiple explicit statuses (300 + 404)", () => {
         const responses = Object.keys(mineResponses(`function(req, res, next) {
             if ("someCondition".length) {
                 res.status(404).send('error')
@@ -46,9 +45,9 @@ describe('Analyzer [Responses]', () => {
     it("should detect multiple statuses with implicit one (200 + 404)", () => {
         const responses = Object.keys(mineResponses(`function(req, res, next) {
             if ("someCondition".length) {
-                res.status(404).send('error')
+                return res.status(404).send()
             }
-            res.send('respond with a resource');
+            return res.send('special variable');
         }`))
         expect(responses.length).toBe(2)
         expect(responses).toContain('200')
@@ -202,7 +201,58 @@ describe('Analyzer [Responses]', () => {
         expect(responses.length).toBe(1)
         expect(responses).toContain('200')
     })
+
+    it("should handle single exit point with multiple execution paths", () => {
+        const responses = Object.keys(mineResponses(`(req, res, next) => {
+            if (cond1) {
+                res.status(404)
+            }
+            if (cond2) {
+                res.status(200)
+            }
+            return res.status(500).send()
+        }`))
+        expect(responses.length).toBe(3)
+        expect(responses).toContain('200')
+        expect(responses).toContain('404')
+        expect(responses).toContain('500')
+    })
+
+    it("should handle single exit point with multiple execution paths (inline branching)", () => {
+        const responses = Object.keys(mineResponses(`(req, res, next) => {
+            if (cond1) res.status(404)
+            if (cond2) res.status(200)
+            return res.status(500).json([]);
+        }`))
+        expect(responses.length).toBe(3)
+        expect(responses).toContain('200')
+        expect(responses).toContain('404')
+        expect(responses).toContain('500')
+    })
+
+
+    it("should handle single exit point with void return", () => {
+        const responses = Object.keys(mineResponses(`(req, res, next) => {
+            res.status(500).json([]);
+        }`))
+        expect(responses.length).toBe(1)
+        expect(responses).toContain('500')
+    })
+
+    it("should handle single exit point with multiple execution paths and void return", () => {
+        const responses = Object.keys(mineResponses(`(req, res, next) => {
+            if (cond1) res.status(404)
+            if (cond2) res.status(200)
+            res.status(500).json([]);
+        }`))
+        expect(responses.length).toBe(3)
+        expect(responses).toContain('200')
+        expect(responses).toContain('404')
+        expect(responses).toContain('500')
+    })
+
 });
+
 
 // describe('Analyzer [Parameters]', () => {
 //

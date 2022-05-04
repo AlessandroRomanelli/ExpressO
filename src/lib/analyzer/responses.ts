@@ -1,5 +1,5 @@
 import { OpenAPIV3 } from 'openapi-types';
-import { find, remove } from 'abstract-syntax-tree';
+import AST from 'abstract-syntax-tree';
 import { getReasonPhrase } from 'http-status-codes';
 import _ from 'lodash';
 import md5 from 'md5';
@@ -53,12 +53,12 @@ class ResponseStatusIdentifier extends ResponseStatus {
 
   static getName(node: any): string {
     if (node.type === 'Identifier') return node.name;
-    return _.last(find(node, 'Identifier').map((x: any) => x.name)) || 'UNKNOWN';
+    return _.last(AST.find(node, 'Identifier').map((x: any) => x.name)) || 'UNKNOWN';
   }
 
   static getPath(node: any): string {
     if (node.type === 'Identifier') return '';
-    return find(node, 'Identifier')
+    return AST.find(node, 'Identifier')
       .map((x: any) => x.name)
       .slice(0, -1)
       .join('.');
@@ -112,7 +112,7 @@ const mineNodeResponse = (node: any): ResponseStatus => {
 
 const mineStatementResponse = (statement: any, resName: string): ResponseStatus | undefined => {
   const response = _.last(
-    find(
+    AST.find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status'] > *:last-child, ` +
         `AssignmentExpression[left.object.name='${resName}'][left.property.name='statusCode'] > *[property.name!='statusCode']`,
@@ -120,7 +120,7 @@ const mineStatementResponse = (statement: any, resName: string): ResponseStatus 
   );
   if (response) return mineNodeResponse(response);
   const terminator = _.first(
-    find(
+    AST.find(
       statement,
       `CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/]`,
     ),
@@ -129,36 +129,29 @@ const mineStatementResponse = (statement: any, resName: string): ResponseStatus 
 };
 
 const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
-  remove(block, 'IfStatement BlockStatement,SwitchStatement');
-  const statements = find(
+  const statements = AST.find(
     block,
-    `IfStatement ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
+    `IfStatement :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
       `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`,
   );
-  const lastStatement = _.last(
-    find(
+  AST.remove(block, `IfStatement :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
+    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`)
+  let lastStatement = _.last(
+    AST.find(
       block,
-      `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
-        `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
+        `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
         `AssignmentExpression[left.object.name=${resName}]`,
     ),
   );
-  if (lastStatement) {
-    statements.push(lastStatement);
-  } else {
-    const lastStatement = _.last(
-      find(
+  if (!lastStatement) {
+    lastStatement = _.last(
+      AST.find(
         block,
-        `ExpressionStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
-          '|',
-        )}/]), ` +
-          `*:not(IfStatement) > ReturnStatement:has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
-            '|',
-          )}/])`,
+        `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
       ),
     );
-    if (lastStatement) statements.push(lastStatement);
   }
+  if (lastStatement)  statements.push(lastStatement);
 
   return statements.map((x: any) => mineStatementResponse(x, resName));
 };
@@ -174,7 +167,7 @@ export const mineResponses = _.memoize(
       return mineStatementResponse(fn.body, resName)?.toSpecification() || {};
     }
 
-    const responses: ResponseStatus[] = find(
+    const responses: ResponseStatus[] = AST.find(
       fn,
       `BlockStatement:has(CallExpression:has(Identifier[name='${resName}'])` +
         `[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
