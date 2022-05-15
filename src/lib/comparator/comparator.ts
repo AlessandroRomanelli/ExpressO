@@ -5,6 +5,7 @@ import { readSpecification } from './reader';
 import { CoverageReport, HTTPMethod } from './types';
 import _ from 'lodash';
 import { OpenAPIV3 } from 'openapi-types';
+import { HTTP_METHOD } from "../proxy/model";
 
 const compare = (
   customSpec: OpenAPIV3.Document,
@@ -25,42 +26,53 @@ const compare = (
   };
 };
 
-const getBasepaths = (x: OpenAPIV3.Document): string[] | undefined => {
+const getBasepaths = (x: OpenAPIV3.Document) => {
   try {
     return x.servers?.map((x) => new URL(x.url).pathname) || ['/'];
   } catch (e) {
     logger.warn('Unable to parse the following server URL: ' + x.servers?.map((x) => x.url));
   }
-  return x.servers?.map((x) => path.normalize(x.url));
+  return x.servers?.map((x) => path.normalize(x.url)) || ['/'];
 };
+
+const getURL = (basePath: string, pattern: string, method: string) => `${path.normalize(basePath + pattern).toLowerCase()}#${method}`
 
 const getEndpoints = (x: OpenAPIV3.Document, basePath = '/'): string[] =>
   Object.keys(x.paths).flatMap((pattern) =>
-    Object.keys(x.paths[pattern] || {}).map((method) => `${path.normalize(basePath + pattern)}#${method}`),
+    Object.keys(x.paths[pattern] || {})
+      .filter(x => x.toUpperCase() in HTTP_METHOD)
+      .map((method) => getURL(basePath, pattern, method)),
   );
 
 const getResponses = (x: OpenAPIV3.Document, basePath = '/'): string[] =>
   Object.keys(x.paths).flatMap((pattern) =>
-    (Object.keys(x.paths[pattern] || {}) as HTTPMethod[]).flatMap((method) => {
-      const patternObj = x.paths[pattern] || {};
-      if (!Object.keys(patternObj).includes(method)) return [];
-      const methodObj = patternObj[method] as OpenAPIV3.OperationObject;
-      return Object.keys(methodObj.responses).map(
-        (response) => `${path.normalize(basePath + pattern)}#${method}#${response}`,
-      );
-    }),
+    (Object.keys(x.paths[pattern] || {}) as HTTPMethod[])
+      .filter(x => x.toUpperCase() in HTTP_METHOD)
+      .flatMap((method) => {
+        const patternObj = x.paths[pattern] || {};
+        if (!Object.keys(patternObj).includes(method)) return [];
+        const methodObj = patternObj[method] as OpenAPIV3.OperationObject;
+        return Object.keys(methodObj.responses || {}).map(
+          (response) => `${getURL(basePath, pattern, method)}#${response}`,
+        );
+      }),
   );
 
 const getParameters = (x: OpenAPIV3.Document, basePath = '/'): string[] =>
   Object.keys(x.paths).flatMap((pattern) =>
-    (Object.keys(x.paths[pattern] || {}) as HTTPMethod[]).flatMap((method) => {
+    (Object.keys(x.paths[pattern] || {}) as HTTPMethod[])
+      .filter(x => x.toUpperCase() in HTTP_METHOD)
+      .flatMap((method) => {
       const patternObj = x.paths[pattern] || {};
       if (!Object.keys(patternObj).includes(method)) return [];
       const methodObj = patternObj[method] as OpenAPIV3.OperationObject;
       if (!Object.keys(methodObj).includes('parameters')) return [];
       const { parameters } = methodObj;
       return (parameters as OpenAPIV3.ParameterObject[]).map(
-        (parameter) => `${path.normalize(basePath + pattern)}#${method}#${parameter.name}`,
+        (parameter) => {
+          if (parameter.in === 'path') return `${getURL(basePath, pattern, method)}#${parameter.name.toLowerCase()}`
+          return `${getURL(basePath, pattern, method)}#${parameter.name}`
+        },
       );
     }),
   );
@@ -75,7 +87,7 @@ export const compareSpecifications = async (custom: string, generated: string) =
   });
 
   const comparisons = [getEndpoints, getResponses, getParameters];
-  const [endpoints, responses, parameters] = comparisons.map((fn) => compare(customSpec, generatedSpec, fn));
+  const [endpoints, responses, parameters]: CoverageReport[] = comparisons.map((fn) => compare(customSpec, generatedSpec, fn));
 
   return {
     custom,

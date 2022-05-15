@@ -129,13 +129,13 @@ const mineStatementResponse = (statement: any, resName: string): ResponseStatus 
 };
 
 const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
+  const nestedStatementsQuery = `:matches(IfStatement, SwitchStatement) :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
+    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`
   const statements = AST.find(
     block,
-    `IfStatement :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
-      `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`,
+    nestedStatementsQuery
   );
-  AST.remove(block, `IfStatement :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
-    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`)
+  AST.remove(block, nestedStatementsQuery)
   let lastStatement = _.last(
     AST.find(
       block,

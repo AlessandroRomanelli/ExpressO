@@ -1,6 +1,7 @@
 import { CLIOptionsCompare } from '../../cli/types';
 import { compareSpecifications, generateReport } from '../comparator';
 import { table } from 'table';
+import logger from "jet-logger";
 
 export const expressoCompare = async (options: CLIOptionsCompare): Promise<void> => {
   const tableOptions = {
