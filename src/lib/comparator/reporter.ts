@@ -9,7 +9,7 @@ interface Endpoint {
 }
 
 type Response = Endpoint & {
-  response: number;
+  response: string;
 };
 
 type Parameter = Endpoint & {
@@ -27,7 +27,7 @@ const parseEndpoint = (x: string): Endpoint => {
 
 const parseResponse = (x: string): Response => {
   const [pattern, method, response] = x.split('#');
-  return { pattern, method: parseMethod(method), response: parseInt(response, 10) };
+  return { pattern, method: parseMethod(method), response };
 };
 
 const parseParameter = (x: string): Parameter => {

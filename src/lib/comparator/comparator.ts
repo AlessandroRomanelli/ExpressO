@@ -59,23 +59,22 @@ const getResponses = (x: OpenAPIV3.Document, basePath = '/'): string[] =>
   );
 
 const getParameters = (x: OpenAPIV3.Document, basePath = '/'): string[] =>
-  Object.keys(x.paths).flatMap((pattern) =>
-    (Object.keys(x.paths[pattern] || {}) as HTTPMethod[])
+  Object.keys(x.paths).flatMap((pattern) => {
+    const patternObj = x.paths[pattern] || {};
+    const patternParameters = (patternObj['parameters'] || []) as OpenAPIV3.ParameterObject[]
+    return (Object.keys(patternObj) as HTTPMethod[])
       .filter(x => x.toUpperCase() in HTTP_METHOD)
       .flatMap((method) => {
-      const patternObj = x.paths[pattern] || {};
-      if (!Object.keys(patternObj).includes(method)) return [];
-      const methodObj = patternObj[method] as OpenAPIV3.OperationObject;
-      if (!Object.keys(methodObj).includes('parameters')) return [];
-      const { parameters } = methodObj;
-      return (parameters as OpenAPIV3.ParameterObject[]).map(
-        (parameter) => {
-          if (parameter.in === 'path') return `${getURL(basePath, pattern, method)}#${parameter.name.toLowerCase()}`
-          return `${getURL(basePath, pattern, method)}#${parameter.name}`
-        },
-      );
-    }),
-  );
+        const methodObj = patternObj[method] as OpenAPIV3.OperationObject;
+        const parameters = (methodObj.parameters || []) as OpenAPIV3.ParameterObject[];
+        return ([] as OpenAPIV3.ParameterObject[]).concat(patternParameters, parameters).map(
+          (parameter) => {
+            if (parameter.in === 'path') return `${getURL(basePath, pattern, method)}#${parameter.name.toLowerCase()}`
+            return `${getURL(basePath, pattern, method)}#${parameter.name}`
+          },
+        );
+      })
+  });
 
 export const compareSpecifications = async (custom: string, generated: string) => {
   logger.info(`Comparing OpenAPI specifications: ${path.basename(custom)} with ${path.basename(generated)}`);
