@@ -3,9 +3,19 @@ import logger from 'jet-logger';
 import path from 'path';
 import { readSpecification } from './reader';
 import { CoverageReport, HTTPMethod } from './types';
-import _ from 'lodash';
+import _ from "lodash";
 import { OpenAPIV3 } from 'openapi-types';
 import { HTTP_METHOD } from "../proxy/model";
+
+const pathParamRegex = /(?<={)\w+(?=})/g
+const anonymizePath = (x: string): [string, RegExpMatchArray, string] => [x, x.match(pathParamRegex) || [], x.replace(pathParamRegex, '')]
+
+const reinsertParams = (p: string, params: string[]): string => {
+  for (const param of params) {
+    p = p.replace(/{}/, `{${param}}`)
+  }
+  return p
+}
 
 const compare = (
   customSpec: OpenAPIV3.Document,
@@ -15,16 +25,35 @@ const compare = (
   const [custom, generated] = [customSpec, generatedSpec]
     .map((x) => [x, getBasepaths(x)] as [OpenAPIV3.Document, string[]])
     .map(([x, basePath]) => extractorFn(x, basePath[0]));
-  const [missing, matched] = _.partition(custom, (x) => !generated.includes(x));
-  const additional = generated.filter((x) => !custom.includes(x));
+  // eslint-disable-next-line prefer-const
+  let [missing, matched] = _.partition(custom, (x) => !generated.includes(x));
+  let additional = generated.filter((x) => !custom.includes(x));
+
+  const strictMissingCount = missing.length
+
+  const [missingAnonymized, additionalAnonymized] = [missing, additional].map(x => x.map(anonymizePath))
+  const additionalNormalized = additionalAnonymized.map(([,,normalized]) => normalized)
+  const partiallyMatched = missingAnonymized
+    .filter(([,,normalized]) => additionalNormalized.includes(normalized))
+    .map(([originalMissing, paramNamesMissing, normalized]) => {
+      const idx = additionalNormalized.indexOf(normalized)
+      const [originalAdditional,paramNamesAdditional] = additionalAnonymized[idx]
+      missing = missing.filter(x => x !== originalMissing)
+      additional = additional.filter(x => x !== originalAdditional)
+      return [normalized, paramNamesMissing.map((x, i) => `${x}|${paramNamesAdditional[i]}`)] as [string, string[]]})
+    .map(([normalized, params]) => reinsertParams(normalized, params))
 
   return {
     coverage: (custom.length - missing.length) / custom.length || 0,
+    strictCoverage: (custom.length - strictMissingCount) / custom.length || 0,
+    originalCount: custom.length,
     additional,
     missing,
     matched,
+    partiallyMatched
   };
 };
+
 
 const getBasepaths = (x: OpenAPIV3.Document) => {
   try {

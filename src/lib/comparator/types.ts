@@ -1,8 +1,11 @@
 export interface CoverageReport {
+  strictCoverage: number;
   coverage: number;
+  originalCount: number;
   additional: string[];
   missing: string[];
   matched: string[];
+  partiallyMatched: string[];
 }
 
 export interface ComparisonResults {

@@ -44,8 +44,8 @@ const generateHeader = (leftSide: string, rightSide: string): string => {
 const generateCoverageBar = (coverage: number): string =>
   `${'\u2588'.repeat(Math.round(CLIWidth * coverage))}${'\u2591'.repeat(Math.round(CLIWidth * (1 - coverage)))}`;
 
-const generateCoverage = (coverage: number, name: string, elements: number): string => {
-  return `${numeral(coverage).format('0.00%')} (${Math.round(elements * coverage)}/${elements} ${name})`;
+const generateCoverage = (coverage: number, name: string, elementsCount: number, totalCount: number): string => {
+  return `${numeral(coverage).format('0.00%')} (${elementsCount}/${totalCount} ${name})`;
 };
 
 const tableConfig: TableUserConfig = {
@@ -89,15 +89,20 @@ const generateResults = (title: string, results: string[], fn: ModelMapping) => 
 
 const generateReportSubtype = (results: CoverageReport, name: string, fn: ModelMapping) => `${generateHeader(
   `${name} coverage`,
-  generateCoverage(results.coverage, name, results.matched.length + results.missing.length),
+  generateCoverage(results.coverage, name, results.matched.length + results.partiallyMatched.length, results.originalCount),
 )}
 ${generateCoverageBar(results.coverage)}
+${generateHeader(`Strict coverage (no partials)`,
+  generateCoverage(results.strictCoverage, name, results.matched.length, results.originalCount)  
+)}
+${generateCoverageBar(results.strictCoverage)}
 
 ${(
   [
     ['Missing', results.missing],
     ['Extra', results.additional],
     ['Matched', results.matched],
+    ['Partially matched', results.partiallyMatched]
   ] as [string, string[]][]
 )
   .map(([title, res]) => generateResults(title, res, fn))
