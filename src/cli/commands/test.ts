@@ -12,7 +12,7 @@ export const parseTestCommandLineArgs = (argv: string[]): CLIOptionsTest => {
 
   const testOptions = commandLineArgs(testCommandDefinitions, { stopAtFirstUnknown: true, argv });
 
-  if (!testOptions.file)
+  if (!testOptions.help && !testOptions.file)
     throw new Error('Must provide a OAPI specification file as input.\nUsage: expresso test <file>');
 
   return {

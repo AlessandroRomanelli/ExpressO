@@ -17,8 +17,11 @@ export const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare =
       help: true,
     };
 
-  const [fileA, fileB] = parseOptions.files.split(':');
-  if (!fileA || !fileB) {
+  if (!parseOptions.help && !parseOptions.files) {
+    throw new Error("Must provide two files to compare separated by a colon (:), fileA:fileB")
+  }
+  const [fileA, fileB] = (parseOptions.files || ':').split(':');
+  if (!parseOptions.help && (!fileA || !fileB)) {
     throw new Error('Must provide two file paths as argument <fileA>:<fileB>');
   }
 

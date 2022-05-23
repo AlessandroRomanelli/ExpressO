@@ -1,7 +1,6 @@
 import { CLIOptionsCompare } from '../../cli/types';
 import { compareSpecifications, generateReport } from '../comparator';
 import { table } from 'table';
-import logger from "jet-logger";
 
 export const expressoCompare = async (options: CLIOptionsCompare): Promise<void> => {
   const tableOptions = {
@@ -21,7 +20,7 @@ ${table([['-J', '--json', 'Switches output from human-readable to JSON format']]
     );
   const results = await compareSpecifications(options.fileA, options.fileB);
   if (options.json) {
-    return console.log(results);
+    return console.log(JSON.stringify(results, null, 2));
   }
   return console.log(generateReport(results));
 };

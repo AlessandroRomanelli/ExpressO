@@ -49,7 +49,8 @@ export const generateSpecification = async ({ root, startLine, output, extension
     if (stderr) logger.warn(stderr);
   } catch (e) {
     logger.info(`Command '${startLine}' executed. Output:`);
-    logger.warn(e);
+    // logger.warn(e);
+    console.error(e)
   }
 
   try {
@@ -75,7 +76,8 @@ export const generateSpecification = async ({ root, startLine, output, extension
     logger.err('Unable to read the models extracted from the work copy. Aborting...');
     logger.err(e);
     logger.err(e.stack);
-    return cleanUp(root);
+    await cleanUp(root);
+    process.exit(1)
   }
 
   // Convert to YAML if requested

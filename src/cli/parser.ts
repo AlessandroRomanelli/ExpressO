@@ -34,14 +34,13 @@ export const parseMainCommandLineArgs = (): CLIOptions => {
   };
 
   const { command } = mainOptions;
-  if (!(command in fnHandlers)) {
-    return { command: 'help' };
+  if (command in fnHandlers) {
+    return {
+      command,
+      subOptions: fnHandlers[mainOptions.command as CLIProgram](argv),
+    };
   }
-
-  const subOptions = fnHandlers[mainOptions.command as CLIProgram](argv);
-
   return {
-    command,
-    subOptions,
-  };
+    command
+  }
 };

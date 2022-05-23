@@ -14,9 +14,9 @@ export const expresso = async (options: CLIOptions): Promise<void> => {
     return await expressoCompare(options.subOptions as CLIOptionsCompare);
   } else if (options.command === 'generate') {
     return await expressoGenerate(options.subOptions as CLIOptionsGenerate);
-  } else if (options.command === 'monitor') {
-    // eslint-disable-next-line no-empty
   } else if (options.command === 'test') {
     return await expressoTest(options.subOptions as CLIOptionsTest);
   }
+  await expressoHelp()
+  return process.exit(1)
 };
