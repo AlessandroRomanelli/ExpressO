@@ -12,12 +12,15 @@ import waitOn from 'wait-on';
 
 const exec = util.promisify(syncExec);
 
-const cleanUp = async (basePath: string) => {
+const cleanUp = async (basePath: string, error = false) => {
   try {
     await remove(path.resolve(basePath, '.expresso-runtime'));
     logger.info('Expresso work copy cleaned up');
   } catch (e) {
     logger.err(e);
+  }
+  if (error) {
+    process.exit(1)
   }
 };
 
@@ -59,8 +62,8 @@ export const generateSpecification = async ({ root, startLine, output, extension
       timeout: 10000,
     });
   } catch (e) {
-    logger.err(e);
-    return cleanUp(root);
+    console.error(e)
+    return cleanUp(root, true);
   }
 
   // Read the models file and perform the analysis
@@ -73,11 +76,10 @@ export const generateSpecification = async ({ root, startLine, output, extension
     await remove(path.resolve(root, 'expresso-models.json'));
     await writeSpecification(replacedProjectPath, models);
   } catch (e) {
-    logger.err('Unable to read the models extracted from the work copy. Aborting...');
-    logger.err(e);
-    logger.err(e.stack);
-    await cleanUp(root);
-    process.exit(1)
+    console.error('Unable to read the models extracted from the work copy. Aborting...');
+    console.error(e);
+    console.error(e.stack);
+    return cleanUp(root, true);
   }
 
   // Convert to YAML if requested
@@ -92,7 +94,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
       overwrite: true,
     });
   } catch (e) {
-    logger.err(e);
+    console.error(e);
   }
 
   return cleanUp(root);

@@ -64,8 +64,23 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
   };
 };
 
+const correctSpec = (spec: OpenAPIV3.Document): OpenAPIV3.Document => {
+  for (const path of Object.keys(spec.paths)) {
+    const p_obj = spec['paths'][path] as OpenAPIV3.PathItemObject
+    for (const method of Object.keys(p_obj || {})) {
+      const m_obj = Reflect.get(p_obj, method) as OpenAPIV3.OperationObject
+      if (Object.keys(m_obj.responses || {}).length === 0) {
+        m_obj.responses['501'] = {
+          description: "Not Implemented"
+        }
+      }
+    }
+  }
+  return spec
+}
+
 export const writeSpecification = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
-  const spec = await modelsToSpecification(projectRoot, models);
+  const spec = correctSpec(await modelsToSpecification(projectRoot, models));
   const filePath = path.resolve(projectRoot, 'expresso-openapi.json');
   await writeJSON(filePath, spec, {
     spaces: 4,
