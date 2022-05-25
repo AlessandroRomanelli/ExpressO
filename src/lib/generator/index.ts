@@ -20,7 +20,7 @@ const cleanUp = async (basePath: string, error = false) => {
     logger.err(e);
   }
   if (error) {
-    process.exit(1)
+    process.exitCode = 1
   }
 };
 

@@ -6,10 +6,5 @@ import logger from 'jet-logger';
 
 (async () => {
   const options = parseMainCommandLineArgs();
-  try {
-    await expresso(options);
-  } catch (e) {
-    console.error(e);
-    process.exit(1)
-  }
+  await expresso(options);
 })();

@@ -1,0 +1,40 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080/api
+    description: Generated server url
+paths:
+  /test/{r_id}/{u_id}:
+    get:
+      parameters:
+        - name: r_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: u_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+  /test/{u_name}/{pg}:
+    get:
+      parameters:
+        - name: u_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pg
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
