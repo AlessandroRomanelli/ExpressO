@@ -30,7 +30,7 @@ export class Endpoint {
   }
 
   getParameters(handler: string): OpenAPIV3.ParameterObject[] {
-    return mineParameters(handler);
+    return mineParameters(handler, this.path);
   }
 
   analyzeHandler(handler: string): [OpenAPIV3.ResponsesObject, OpenAPIV3.ParameterObject[]] {

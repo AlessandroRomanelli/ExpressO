@@ -1,4 +1,5 @@
 import { mineResponses } from "../../src/lib/analyzer";
+import { mineParameters } from "../../src/lib/analyzer";
 
 describe('Analyzer [Responses]', () => {
     it("should throw an error if handler is missing params", () => {
@@ -254,6 +255,26 @@ describe('Analyzer [Responses]', () => {
 });
 
 
-// describe('Analyzer [Parameters]', () => {
-//
-// })
+describe('Analyzer [Parameters]', () => {
+    it("should handle path parameters", async () => {
+        const pathParams = mineParameters(`(req, res, next) => {
+            res.status(500).json([]);
+        }`, '/api/:param1/:param2/:param3.:param4').map(x => x.name)
+        expect(pathParams).toContain('param1')
+        expect(pathParams).toContain('param2')
+        expect(pathParams).toContain('param3')
+        expect(pathParams).toContain('param4')
+    })
+
+    it("should handle query parameters", async () => {
+        const queryParams = mineParameters(`(req, res, next) => {
+            const { param2 } = req.query
+            const { query: { param3 }} = req
+            res.status(req.query.param1).json([]);
+        }`, '/').map(x => x.name)
+        expect(queryParams).toContain('param1')
+        expect(queryParams).toContain('param2')
+        expect(queryParams).toContain('param3')
+
+    })
+})

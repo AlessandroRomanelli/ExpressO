@@ -42,7 +42,6 @@ export class Handler {
     return this._routers;
   }
 
-  // TODO: Add sorting depending on operation order
   getEndpoints(basePath = ''): { [k1: string]: { [k2 in HTTP_METHOD]: Endpoint } } {
     const endpoints: { [k1: string]: { [k2 in HTTP_METHOD]: Endpoint } } = {};
     for (const p of Object.keys(this._endpoints)) {
