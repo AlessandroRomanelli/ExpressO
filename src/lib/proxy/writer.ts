@@ -5,6 +5,7 @@ import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
 import _ from 'lodash';
+import fs from 'fs'
 
 const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
   return {
@@ -88,10 +89,10 @@ export const writeSpecification = async (projectRoot = '.', models: Set<Handler>
   logger.info(`OpenAPI specification successfully generated at '${filePath}'`);
 };
 
-export const writeModels = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
-  const filePath = path.resolve(projectRoot, '..', 'expresso-models.json');
+export const writeModels = async (models: Set<Handler>): Promise<void> => {
   try {
-    await writeJSON(filePath, Array.from(models));
+    await writeJSON(path.resolve(process.cwd(), '..', 'expresso-models.json'), Array.from(models));
+    process.exit(0)
   } catch (e) {
     console.error(e);
   }

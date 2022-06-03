@@ -53,6 +53,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     const { stdout } = await exec('npm list -g | head -1');
     const npmLibFolder = stdout.trim();
 
+
+    logger.info("Copying the global installation of 'expresso-api' into the work copy")
     // Install the global 'expresso-api' as local 'express' within the work copy
     await copy(
       path.resolve(npmLibFolder, 'node_modules/expresso-api'),
@@ -63,6 +65,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       },
     );
 
+    logger.info("Installing the 'express' types as types for 'expresso-api'")
     try {
       // Install the 'express' types within as types for 'expresso-api'
       await copy(
@@ -76,8 +79,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
       logger.warn("Could not find any 'express' types installed");
     }
 
-    // TODO: Version check and warn if !3.X
     // Install the real 'express' within the work copy with a different name to avoid conflicts
+    logger.info("Copying the local installation of 'express' into the work copy")
     await copy(
       path.resolve(basePath, 'node_modules/express'),
       path.resolve(basePath, '.expresso-runtime/node_modules/express-original'),

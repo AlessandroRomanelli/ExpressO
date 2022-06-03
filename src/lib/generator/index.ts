@@ -40,7 +40,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
 
   const execOptions: ExecOptions = {
     cwd: replacedProjectPath,
-    timeout: 10000,
+    timeout: 5000,
   };
 
   // Launch the work copy with the replaced modules
@@ -59,7 +59,9 @@ export const generateSpecification = async ({ root, startLine, output, extension
   try {
     await waitOn({
       resources: [path.resolve(root, 'expresso-models.json')],
-      timeout: 10000,
+      timeout: 1000,
+      interval: 10,
+      window: 50
     });
   } catch (e) {
     console.error(e)
@@ -67,12 +69,14 @@ export const generateSpecification = async ({ root, startLine, output, extension
   }
 
   // Read the models file and perform the analysis
+  logger.info("Reading 'expresso-models.json' file")
   try {
     const models = new Set(
       ((await readJSON(path.resolve(root, 'expresso-models.json'), 'utf-8')) as HandlerJSON[]).map((x) =>
         Handler.fromJSON(x),
       ),
     );
+    logger.info("Parsed JSON models back into model representation")
     await remove(path.resolve(root, 'expresso-models.json'));
     await writeSpecification(replacedProjectPath, models);
   } catch (e) {
