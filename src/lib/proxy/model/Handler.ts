@@ -2,7 +2,7 @@ import express from 'express-original';
 import { Endpoint, EndpointJSON } from './Endpoint';
 import { HTTP_METHOD } from './Method';
 import path from 'path';
-import { emitter } from "../event"
+import { emitter } from '../event';
 
 export interface HandlerJSON {
   _instance: ExpressHandler;

@@ -5,7 +5,7 @@ import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
 import logger from 'jet-logger';
 import _ from 'lodash';
-import fs from 'fs'
+import fs from 'fs';
 
 const endpointToSpecification = (endpoint: Endpoint): OpenAPIV3.OperationObject => {
   return {
@@ -67,18 +67,18 @@ const modelsToSpecification = async (projectRoot: string, models: Set<Handler>):
 
 const correctSpec = (spec: OpenAPIV3.Document): OpenAPIV3.Document => {
   for (const path of Object.keys(spec.paths)) {
-    const p_obj = spec['paths'][path] as OpenAPIV3.PathItemObject
+    const p_obj = spec['paths'][path] as OpenAPIV3.PathItemObject;
     for (const method of Object.keys(p_obj || {})) {
-      const m_obj = Reflect.get(p_obj, method) as OpenAPIV3.OperationObject
+      const m_obj = Reflect.get(p_obj, method) as OpenAPIV3.OperationObject;
       if (Object.keys(m_obj.responses || {}).length === 0) {
         m_obj.responses['501'] = {
-          description: "Not Implemented"
-        }
+          description: 'Not Implemented',
+        };
       }
     }
   }
-  return spec
-}
+  return spec;
+};
 
 export const writeSpecification = async (projectRoot = '.', models: Set<Handler>): Promise<void> => {
   const spec = correctSpec(await modelsToSpecification(projectRoot, models));
@@ -92,7 +92,7 @@ export const writeSpecification = async (projectRoot = '.', models: Set<Handler>
 export const writeModels = async (models: Set<Handler>): Promise<void> => {
   try {
     await writeJSON(path.resolve(process.cwd(), '..', 'expresso-models.json'), Array.from(models));
-    process.exit(0)
+    process.exit(0);
   } catch (e) {
     console.error(e);
   }

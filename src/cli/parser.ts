@@ -41,6 +41,6 @@ export const parseMainCommandLineArgs = (): CLIOptions => {
     };
   }
   return {
-    command
-  }
+    command,
+  };
 };

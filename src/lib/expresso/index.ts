@@ -17,6 +17,6 @@ export const expresso = async (options: CLIOptions): Promise<void> => {
   } else if (options.command === 'test') {
     return await expressoTest(options.subOptions as CLIOptionsTest);
   }
-  await expressoHelp()
-  process.exitCode = 1
+  await expressoHelp();
+  process.exitCode = 1;
 };

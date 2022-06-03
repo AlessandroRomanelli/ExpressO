@@ -129,17 +129,15 @@ const mineStatementResponse = (statement: any, resName: string): ResponseStatus 
 };
 
 const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
-  const nestedStatementsQuery = `:matches(IfStatement, SwitchStatement) :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
-    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`
-  const statements = AST.find(
-    block,
-    nestedStatementsQuery
-  );
-  AST.remove(block, nestedStatementsQuery)
+  const nestedStatementsQuery =
+    `:matches(IfStatement, SwitchStatement) :matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])` +
+    `[callee.property.name=/${['status', ...EXPRESS_TERMINATORS].join('|')}/])`;
+  const statements = AST.find(block, nestedStatementsQuery);
+  AST.remove(block, nestedStatementsQuery);
   let lastStatement = _.last(
     AST.find(
       block,
-        `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
+      `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name='status']), ` +
         `AssignmentExpression[left.object.name=${resName}]`,
     ),
   );
@@ -147,11 +145,13 @@ const mineBlockResponses = (block: any, resName: string): ResponseStatus[] => {
     lastStatement = _.last(
       AST.find(
         block,
-        `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join('|')}/])`,
+        `:matches(ExpressionStatement, ReturnStatement):has(CallExpression:has(Identifier[name='${resName}'])[callee.property.name=/${EXPRESS_TERMINATORS.join(
+          '|',
+        )}/])`,
       ),
     );
   }
-  if (lastStatement)  statements.push(lastStatement);
+  if (lastStatement) statements.push(lastStatement);
 
   return statements.map((x: any) => mineStatementResponse(x, resName));
 };

@@ -89,11 +89,17 @@ const generateResults = (title: string, results: string[], fn: ModelMapping) => 
 
 const generateReportSubtype = (results: CoverageReport, name: string, fn: ModelMapping) => `${generateHeader(
   `${name} coverage`,
-  generateCoverage(results.coverage, name, results.matched.length + results.partiallyMatched.length, results.originalCount),
+  generateCoverage(
+    results.coverage,
+    name,
+    results.matched.length + results.partiallyMatched.length,
+    results.originalCount,
+  ),
 )}
 ${generateCoverageBar(results.coverage)}
-${generateHeader(`Strict coverage (no partials)`,
-  generateCoverage(results.strictCoverage, name, results.matched.length, results.originalCount)  
+${generateHeader(
+  `Strict coverage (no partials)`,
+  generateCoverage(results.strictCoverage, name, results.matched.length, results.originalCount),
 )}
 ${generateCoverageBar(results.strictCoverage)}
 
@@ -102,7 +108,7 @@ ${(
     ['Missing', results.missing],
     ['Extra', results.additional],
     ['Matched', results.matched],
-    ['Partially matched', results.partiallyMatched]
+    ['Partially matched', results.partiallyMatched],
   ] as [string, string[]][]
 )
   .map(([title, res]) => generateResults(title, res, fn))

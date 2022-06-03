@@ -9,5 +9,5 @@ import logger from 'jet-logger';
   const options = parseMainCommandLineArgs();
   logger.info(`Expresso main thread started`);
   await expresso(options);
-  logger.info("Expresso terminated")
+  logger.info('Expresso terminated');
 })();

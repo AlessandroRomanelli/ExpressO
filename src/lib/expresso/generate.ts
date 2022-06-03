@@ -25,7 +25,7 @@ ${table(
     ['--output', "specify a path of where to output the OpenAPI specification, defaults to './expresso-openapi'"],
     ['--ext', "specify which format to use for the output, defaults to 'json'"],
     ['--json', 'Switches output from human-readable to JSON format'],
-    ['--help', 'Show this help message']
+    ['--help', 'Show this help message'],
   ],
   tableOptions,
 )}

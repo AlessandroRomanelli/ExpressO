@@ -20,7 +20,7 @@ const cleanUp = async (basePath: string, error = false) => {
     logger.err(e);
   }
   if (error) {
-    process.exitCode = 1
+    process.exitCode = 1;
   }
 };
 
@@ -53,7 +53,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
   } catch (e) {
     logger.info(`Command '${startLine}' executed. Output:`);
     // logger.warn(e);
-    console.error(e)
+    console.error(e);
   }
 
   try {
@@ -61,22 +61,22 @@ export const generateSpecification = async ({ root, startLine, output, extension
       resources: [path.resolve(root, 'expresso-models.json')],
       timeout: 1000,
       interval: 10,
-      window: 50
+      window: 50,
     });
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return cleanUp(root, true);
   }
 
   // Read the models file and perform the analysis
-  logger.info("Reading 'expresso-models.json' file")
+  logger.info("Reading 'expresso-models.json' file");
   try {
     const models = new Set(
       ((await readJSON(path.resolve(root, 'expresso-models.json'), 'utf-8')) as HandlerJSON[]).map((x) =>
         Handler.fromJSON(x),
       ),
     );
-    logger.info("Parsed JSON models back into model representation")
+    logger.info('Parsed JSON models back into model representation');
     await remove(path.resolve(root, 'expresso-models.json'));
     await writeSpecification(replacedProjectPath, models);
   } catch (e) {

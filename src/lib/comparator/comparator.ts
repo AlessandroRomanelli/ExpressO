@@ -4,18 +4,18 @@ import path from 'path';
 import { readSpecification } from './reader';
 import { CoverageReport } from './types';
 import { OpenAPIV3 } from 'openapi-types';
-import { compareEndpoints } from "./endpoints";
-import { compareResponses } from "./responses";
-import { compareParameters } from "./parameters";
+import { compareEndpoints } from './endpoints';
+import { compareResponses } from './responses';
+import { compareParameters } from './parameters';
 
-export const pathParamRegex = /(?<={)(\w+(\|\w+)*)+(?=})/g
+export const pathParamRegex = /(?<={)(\w+(\|\w+)*)+(?=})/g;
 
 export const reinsertParams = (p: string, params: string[]): string => {
   for (const param of params) {
-    p = p.replace(/{}/, `{${param}}`)
+    p = p.replace(/{}/, `{${param}}`);
   }
-  return p
-}
+  return p;
+};
 
 export const getBasepath = (x: OpenAPIV3.Document) => {
   try {
