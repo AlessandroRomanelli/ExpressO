@@ -4,7 +4,7 @@ import { generateSpecification } from '../generator';
 import { table } from 'table';
 import { remove } from 'fs-extra';
 import path from 'path';
-import logger from "../../logger";
+import logger from '../../logger';
 
 export const expressoTest = async (options: CLIOptionsTest): Promise<void> => {
   const tableOptions = {
@@ -35,7 +35,7 @@ ${table(
 )}`,
     );
 
-  logger.info("Generating OpenAPI specification and comparing it to '" + options.fileA + "'")
+  logger.info("Generating OpenAPI specification and comparing it to '" + options.fileA + "'");
   await generateSpecification(options);
 
   const results = await compareSpecifications(options.fileA, `./${options.output}.${options.extension}`);
