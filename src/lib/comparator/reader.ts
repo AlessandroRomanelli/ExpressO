@@ -2,7 +2,7 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 import { OpenAPIV3 } from 'openapi-types';
 import converter from 'swagger2openapi';
 
-import logger from 'jet-logger';
+import logger from '../../logger';
 
 export const readSpecification = async (filePath: string): Promise<OpenAPIV3.Document> => {
   logger.info('Reading specification: ' + filePath);

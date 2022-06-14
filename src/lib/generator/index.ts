@@ -1,6 +1,6 @@
 import path from 'path';
 import util from 'util';
-import logger from 'jet-logger';
+import logger from '../../logger';
 import { replaceExpress } from '../replacer';
 import { exec as syncExec, ExecOptions } from 'child_process';
 import { move, readFile, readJSON, remove, writeFile } from 'fs-extra';

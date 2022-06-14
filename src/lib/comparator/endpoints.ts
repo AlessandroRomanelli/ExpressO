@@ -1,4 +1,4 @@
-import logger from 'jet-logger';
+import logger from '../../logger';
 
 import path from 'path';
 import { CoverageReport } from './types';

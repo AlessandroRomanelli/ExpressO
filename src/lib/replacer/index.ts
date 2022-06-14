@@ -1,6 +1,6 @@
 import path from 'path';
-import { stat, move, copy, remove, readFile } from 'fs-extra';
-import logger from 'jet-logger';
+import { stat, move, copy, remove } from 'fs-extra';
+import logger from '../../logger';
 import filesize from 'filesize';
 import { exec as syncExec } from 'child_process';
 import util from 'util';

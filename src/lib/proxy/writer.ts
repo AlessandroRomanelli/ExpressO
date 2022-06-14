@@ -3,7 +3,7 @@ import { Endpoint, Handler, HTTP_METHOD } from './model';
 import { readFile, writeJSON } from 'fs-extra';
 import { OpenAPIV3 } from 'openapi-types';
 import { StatusCodes } from 'http-status-codes';
-import logger from 'jet-logger';
+import logger from '../../logger';
 import _ from 'lodash';
 import fs from 'fs';
 
