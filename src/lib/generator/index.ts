@@ -14,7 +14,7 @@ const exec = util.promisify(syncExec);
 
 const cleanUp = async (basePath: string, error = false) => {
   try {
-    await remove(path.resolve(basePath, '.expresso-runtime'));
+    remove(path.resolve(basePath, '.expresso-runtime')).then();
     logger.info('Expresso work copy cleaned up');
   } catch (e) {
     console.error(e);
@@ -100,6 +100,5 @@ export const generateSpecification = async ({ root, startLine, output, extension
   } catch (e) {
     console.error(e);
   }
-
   return cleanUp(root);
 };
