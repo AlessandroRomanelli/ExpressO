@@ -21,7 +21,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
   try {
     const { isDirectory } = await stat(basePath);
     if (!isDirectory) {
-      logger.err('Provided path did not point to a directory');
+      console.error('Provided path did not point to a directory');
       return false;
     }
   } catch (e) {
@@ -33,7 +33,7 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     await remove(path.resolve(basePath, '.expresso-runtime'));
     logger.info('Removed previously existing working copy');
   } catch (e) {
-    logger.err(e);
+    console.error(e);
   }
 
   try {
@@ -90,8 +90,8 @@ export const replaceExpress = async (basePath: string): Promise<boolean> => {
     );
     logger.info(`Created 'express' proxy within work copy`);
   } catch (e) {
-    logger.err(e);
-    logger.err(`Failed to replace 'express' in folder '${path.resolve(basePath, '.expresso-runtime')}'`);
+    console.error(e);
+    console.error(`Failed to replace 'express' in folder '${path.resolve(basePath, '.expresso-runtime')}'`);
     return false;
   }
 

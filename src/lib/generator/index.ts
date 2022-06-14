@@ -17,7 +17,7 @@ const cleanUp = async (basePath: string, error = false) => {
     await remove(path.resolve(basePath, '.expresso-runtime'));
     logger.info('Expresso work copy cleaned up');
   } catch (e) {
-    logger.err(e);
+    console.error(e);
   }
   if (error) {
     process.exitCode = 1;
@@ -33,7 +33,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
   logger.info(`Generating OpenAPI specification for project with root at '${root}'`);
   // Replace the 'express' module with our own proxy
   if (!(await replaceExpress(root))) {
-    logger.err('Failed to replace express module');
+    console.error('ERROR: Make sure you have installed the dependencies for your project: npm install');
     return cleanUp(root);
   }
   const replacedProjectPath = path.resolve(root, '.expresso-runtime');
