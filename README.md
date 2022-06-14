@@ -29,10 +29,12 @@ Description:
 | `--output` | `-O`  | Specifies a path of where to output the OpenAPI specification.                                                                | `./expresso-openapi` |
 | `--ext`    | `-E`  | Specifies which format to use for the output between `json` and `yaml`.                                                       | `json`               |
 
-### Monitor
-This command is similar to `generate` but will continue monitoring the backend and periodically update the OpenAPI3.0 specification with metrics about the data coming through the routes.
+[//]: # (### Monitor)
 
-    Not implemented yet.
+[//]: # (This command is similar to `generate` but will continue monitoring the backend and periodically update the OpenAPI3.0 specification with metrics about the data coming through the routes.)
+
+[//]: # ()
+[//]: # (    Not implemented yet.)
 
 ### Test 
 This command takes as input another specification and compares it to the one that the tool generates.
@@ -70,9 +72,10 @@ Usage: `expresso compare <OAPIspecA> <OAPIspecB> [--json]`
 |----------|-------|----------------------------------------------------------------|---------|
 | `--json` | `-J`  | Specifies to produce a JSON instead of a human readable report | `False` |
 
-## Limitations
-Currently, the tool only allows users to extract all the endpoints registered in the application and the corresponding response codes.
-This should suffice to generate the skeleton of a valid OpenAPI documentation.
+[//]: # (## Limitations)
+
+[//]: # (Currently, the tool only allows users to extract all the endpoints registered in the application and the corresponding response codes.)
+[//]: # (This should suffice to generate the skeleton of a valid OpenAPI documentation.)
 
 ## Known Issues
 - The response mining has issues with local identifiers. Global constants are self explanatory but local variables (e.g: `status`) does not say anything about the type of response.
