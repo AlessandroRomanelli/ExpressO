@@ -23,10 +23,10 @@ Available commands:
 ${table(
   [
     ['generate', 'Generates OpenAPI specification for the Express.js project in the current directory'],
-    [
-      'monitor',
-      "Generates OpenAPI specification and monitors data traffic in real-time to infer payload schemas and report routes' usage",
-    ],
+    // [
+    //   'monitor',
+    //   "Generates OpenAPI specification and monitors data traffic in real-time to infer payload schemas and report routes' usage",
+    // ],
     ['test', 'Generates OpenAPI specification and compares it with a user-provided ground truth'],
     ['compare', 'Compares two OpenAPI specifications regardless of version or format'],
   ],
