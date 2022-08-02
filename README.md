@@ -5,7 +5,7 @@ An Express.js CLI tool to statically analyze the backend, generating the specifi
 This software is developed in the context of the 2022 Spring semester for the Master Thesis in Software & Data Engineering.
 
 ## How to install
-`npm install -g expresso`
+`npm install -g expresso-api`
 
 This will allow you to use the `expresso` command from anywhere.
 
