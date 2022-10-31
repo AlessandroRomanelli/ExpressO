@@ -22,9 +22,11 @@ export class Handler {
 
   add(endpoint: Endpoint) {
     const obj = this._endpoints[endpoint.path] || {};
-    obj[endpoint.method] = endpoint;
-    this._endpoints[endpoint.path] = obj;
-    emitter.emit('api-update');
+    if (endpoint.handlers.length) {
+      obj[endpoint.method] = endpoint;
+      this._endpoints[endpoint.path] = obj;
+      emitter.emit('api-update');
+    }
   }
 
   mount(path: string, router: Handler) {
