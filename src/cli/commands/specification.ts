@@ -4,4 +4,5 @@ export const parseSpecCommandDefinition = [
   { name: 'output', alias: 'O', defaultValue: 'expresso-openapi' },
   { name: 'ext', alias: 'E', defaultValue: 'json' },
   { name: 'start', defaultValue: 'npm start' },
+  { name: 'verbose', alias: 'V', type: Boolean, defaultValue: false },
 ];

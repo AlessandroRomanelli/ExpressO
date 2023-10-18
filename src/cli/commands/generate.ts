@@ -15,5 +15,6 @@ export const parseGenerateCommandLineArgs = (argv: string[]): CLIOptionsGenerate
     output: parseOptions.output,
     extension: parseOptions.ext,
     startLine: parseOptions.start,
+    verbose: parseOptions.verbose,
   };
 };

@@ -23,5 +23,6 @@ export const parseTestCommandLineArgs = (argv: string[]): CLIOptionsTest => {
     output: 'expresso-openapi',
     root: testOptions.root,
     startLine: testOptions.start,
+    verbose: true,
   };
 };

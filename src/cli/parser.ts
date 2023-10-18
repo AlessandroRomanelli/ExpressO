@@ -13,13 +13,14 @@ export const parseMainCommandLineArgs = (): CLIOptions => {
   const utilsCommandDefinitions = [
     { name: 'version', alias: 'V', type: Boolean },
     { name: 'help', alias: 'H', type: Boolean },
+    { name: 'verbose', alias: 'v', type: Boolean },
   ];
-
   const utilsOptions = commandLineArgs(utilsCommandDefinitions, { stopAtFirstUnknown: true });
   let argv = utilsOptions._unknown || [];
 
   if (utilsOptions.version) return { command: 'version' };
   if (utilsOptions.help) return { command: 'help' };
+  if (utilsOptions.verbose) return { command: 'verbose' };
 
   const mainCommandDefinitions = [{ name: 'command', defaultOption: true }];
 

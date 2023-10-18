@@ -11,5 +11,6 @@ export const parseMonitorCommandLineArgs = (argv: string[]): CLIOptionsMonitor =
     output: parseOptions.output,
     extension: parseOptions.ext,
     startLine: parseOptions.start,
+    verbose: parseOptions.verbose,
   };
 };

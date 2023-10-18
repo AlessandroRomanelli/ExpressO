@@ -21,13 +21,13 @@ export const getBasepath = (x: OpenAPIV3.Document) => {
   try {
     return x.servers?.map((x) => new URL(x.url).pathname)[0] || '/';
   } catch (e) {
-    logger.warn('Unable to parse the following server URL: ' + x.servers?.map((x) => x.url));
+    logger(true).warn('Unable to parse the following server URL: ' + x.servers?.map((x) => x.url));
   }
   return x.servers?.map((x) => path.normalize(x.url))[0] || '/';
 };
 
 export const compareSpecifications = async (custom: string, generated: string) => {
-  logger.info(`Comparing OpenAPI specifications: ${path.basename(custom)} with ${path.basename(generated)}`);
+  logger(true).info(`Comparing OpenAPI specifications: ${path.basename(custom)} with ${path.basename(generated)}`);
   const [customSpec, generatedSpec] = await Promise.all([custom, generated].map(readSpecification));
 
   [customSpec, generatedSpec].forEach((spec, i) => {

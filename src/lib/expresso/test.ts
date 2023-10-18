@@ -35,7 +35,7 @@ ${table(
 )}`,
     );
 
-  logger.info("Generating OpenAPI specification and comparing it to '" + options.fileA + "'");
+  logger( options.verbose).info("Generating OpenAPI specification and comparing it to '" + options.fileA + "'");
   await generateSpecification(options);
 
   const results = await compareSpecifications(options.fileA, `./${options.output}.${options.extension}`);

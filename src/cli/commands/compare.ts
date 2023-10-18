@@ -15,6 +15,7 @@ export const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare =
       fileB: '',
       json: false,
       help: true,
+      verbose: false,
     };
 
   if (!parseOptions.help && !parseOptions.files) {
@@ -30,5 +31,6 @@ export const parseCompareCommandLineArgs = (argv: string[]): CLIOptionsCompare =
     fileB,
     json: parseOptions.json,
     help: parseOptions.help,
+    verbose: parseOptions.verbose,
   };
 };

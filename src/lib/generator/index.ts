@@ -9,13 +9,15 @@ import YAML from 'json2yaml';
 import { Handler, HandlerJSON } from '../proxy/model';
 import { writeSpecification } from '../proxy/writer';
 import waitOn from 'wait-on';
+import loggerfn from '../../logger';
 
 const exec = util.promisify(syncExec);
 
 const cleanUp = async (basePath: string, error = false) => {
   try {
+  
     remove(path.resolve(basePath, '.expresso-runtime')).then();
-    logger.info('Expresso work copy cleaned up');
+    logger(false).info('Expresso work copy cleaned up');
   } catch (e) {
     console.error(e);
   }
@@ -29,7 +31,8 @@ const convertSpecificationToYaml = async (specPath: string): Promise<void> => {
   await writeFile(path.resolve(specPath, 'expresso-openapi.yaml'), YAML.stringify(spec));
 };
 
-export const generateSpecification = async ({ root, startLine, output, extension }: CLIOptionsGenerate) => {
+export const generateSpecification = async ({ root, startLine, output, extension , verbose}: CLIOptionsGenerate) => {
+  const logger = loggerfn(verbose);
   logger.info(`Generating OpenAPI specification for project with root at '${root}'`);
   // Replace the 'express' module with our own proxy
   if (!(await replaceExpress(root))) {

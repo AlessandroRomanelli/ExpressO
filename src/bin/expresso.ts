@@ -6,7 +6,7 @@ import logger from '../logger';
 
 (async () => {
   const options = parseMainCommandLineArgs();
-  logger.info(`Expresso main thread started`);
+  logger(options.subOptions?.verbose).info(`Expresso main thread started`);
   await expresso(options);
-  logger.info('Expresso terminated');
+  logger(options.subOptions?.verbose).info('Expresso terminated');
 })();

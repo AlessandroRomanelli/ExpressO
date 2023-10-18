@@ -1,7 +1,7 @@
 // tslint:disable:no-empty-interface
 
 export type CLIProgram = 'compare' | 'generate' | 'monitor' | 'test';
-export type CLICommand = CLIProgram | 'version' | 'help';
+export type CLICommand = CLIProgram | 'version' | 'help' | 'verbose';
 
 export type OAPIFormat = 'json' | 'yaml';
 
@@ -12,6 +12,7 @@ export interface CLIOptions {
 
 export interface CLISubOptions {
   help: boolean;
+  verbose: boolean;
 }
 
 export interface CLIOptionsComparison extends CLISubOptions {
