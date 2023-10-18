@@ -1,9 +1,6 @@
 # ExpressO
 An Express.js CLI tool to statically analyze the backend, generating the specification for its routes using the OpenAPI standard.
 
-## Context
-This software is developed in the context of the 2022 Spring semester for the Master Thesis in Software & Data Engineering.
-
 ## How to install
 `npm install -g expresso-api`
 
@@ -80,10 +77,3 @@ Usage: `expresso compare <OAPIspecA> <OAPIspecB> [--json]`
 ## Known Issues
 - The response mining has issues with local identifiers. Global constants are self explanatory but local variables (e.g: `status`) does not say anything about the type of response.
 
-## Contributors
-
-| Title | Full Name            | Association                       | Role       |
-|-------|----------------------|-----------------------------------|------------|
-|       | Alessandro Romanelli |                                   | Developer  |
-| Prof. | Cesare Pautasso      | Software Institute (Design Gorup) | Advisor    |
-|       | Souhaila Serbout     | Software Institute (Design Group) | Co-advisor |

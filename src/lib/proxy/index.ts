@@ -10,7 +10,7 @@ const isHTTPMethod = (method: string): method is HTTP_METHOD => {
 };
 
 let opIndex = 0;
-const makeProxyHandler = (app: Handler): ProxyHandler<express.Express> => {
+const makeProxyHandler = (app: Handler): ProxyHandler<express.Handler> => {
   const routeHandlerEndpoint = (method: HTTP_METHOD): ProxyHandler<RequestHandler> => ({
     apply: (target, thisArg, argArray) => {
       const [path, ...handlers] = argArray;

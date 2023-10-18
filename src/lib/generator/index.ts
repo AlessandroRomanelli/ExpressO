@@ -71,6 +71,7 @@ export const generateSpecification = async ({ root, startLine, output, extension
   // Read the models file and perform the analysis
   logger.info("Reading 'expresso-models.json' file");
   try {
+    logger.info(path.resolve(root, 'expresso-models.json'));
     const models = new Set(
       ((await readJSON(path.resolve(root, 'expresso-models.json'), 'utf-8')) as HandlerJSON[]).map((x) =>
         Handler.fromJSON(x),
