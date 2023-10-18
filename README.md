@@ -15,7 +15,7 @@ The project for which you wish to generate the OpenAPI specification should:
 ### Generate
 This command is used to generate the OpenAPI3.0 specification relative to an Express.js project by statically analyzing it.
 
-Usage: `expresso generate [--root] [--start] [--output] [--ext]`
+Usage: `expresso generate [--root] [--start] [--output] [--ext] [--verbose]`
 
 Description:
 
@@ -25,6 +25,7 @@ Description:
 | `--start`  |       | The command line that will be used to start the project.                                                                      | `npm start`          |
 | `--output` | `-O`  | Specifies a path of where to output the OpenAPI specification.                                                                | `./expresso-openapi` |
 | `--ext`    | `-E`  | Specifies which format to use for the output between `json` and `yaml`.                                                       | `json`               |
+| `--verbose`| `-V`  | Shows the progress of the generation.                                                                                         | `False`              |
 
 [//]: # (### Monitor)
 
@@ -36,7 +37,7 @@ Description:
 ### Test 
 This command takes as input another specification and compares it to the one that the tool generates.
 
-Usage: `expresso test <OAPIspec> [--root] [--start] [--output] [--ext]`
+Usage: `expresso test <OAPIspec> [--root] [--start] [--output] [--ext] [--verbose]`
 
 #### Arguments
 
@@ -52,6 +53,9 @@ Usage: `expresso test <OAPIspec> [--root] [--start] [--output] [--ext]`
 | `--start`  |       | The command line that will be used to start the project.                                                                      | `npm start`          |
 | `--output` | `-O`  | Specifies a path of where to output the OpenAPI specification.                                                                | `./expresso-openapi` |
 | `--ext`    | `-E`  | Specifies which format to use for the output between `json` and `yaml`.                                                       | `json`               |
+| `--verbose`| `-V`  | Shows the progress of the generation.                                                                                         | `False`              |
+
+
 
 ### Compare
 Usage: `expresso compare <OAPIspecA> <OAPIspecB> [--json]`
